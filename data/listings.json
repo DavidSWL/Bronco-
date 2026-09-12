@@ -1,0 +1,22 @@
+{
+  "kengrody-fb261461": {
+    "color_exterior": "Marsh Gray",
+    "dealer": "Ken Grody Ford Orange County",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "kengrody-fb261461",
+    "last_seen": "2026-09-12",
+    "location": "Buena Park, CA",
+    "price": 44169,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 44169
+      }
+    ],
+    "status": "active",
+    "stock_number": "FB261461",
+    "trim": "Big Bend",
+    "url": "https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/"
+  }
+}
