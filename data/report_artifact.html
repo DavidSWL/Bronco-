@@ -4,33 +4,36 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
   :root {
-    --bg: #eef0e6; --surface: #ffffff; --surface-2: #f6f7f0;
-    --text: #20241c; --muted: #6d7161; --border: #dadcc9;
-    --accent: #cc531a; --accent-soft: #fbe6d6; --accent-ink: #7a3410;
-    --good: #2f7d4f; --good-soft: #e2f2e6;
-    --watch: #a3721b; --watch-soft: #f7ecd2;
-    --heart: #c53a5a;
+    --bg: #f6f7f6; --surface: #ffffff; --surface-2: #edf0ee;
+    --text: #1b1f1c; --muted: #6a706c; --border: #dde1de;
+    --accent: #3a6b5e; --accent-soft: #e3edea; --accent-ink: #24443f;
+    --good: #3f9d54; --good-soft: #e1f3e3;
+    --watch: #9c7a2c; --watch-soft: #f5edd6;
+    --over: #b3402c; --over-soft: #f8e3dd;
+    --heart: #c1395a;
     --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
     --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #14170f; --surface: #1c2016; --surface-2: #20241a;
-      --text: #edf0e4; --muted: #98a086; --border: #343925;
-      --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
+      --bg: #141615; --surface: #1c201d; --surface-2: #20241f;
+      --text: #e9ece9; --muted: #949a95; --border: #33382f;
+      --accent: #6fae95; --accent-soft: #1f322b; --accent-ink: #bfe3d3;
       --good: #63c088; --good-soft: #1e3324;
-      --watch: #e3b552; --watch-soft: #3a2f14;
-      --heart: #ff6b85;
+      --watch: #d1a94f; --watch-soft: #3a3018;
+      --over: #e2735c; --over-soft: #3d241d;
+      --heart: #ef7a92;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #14170f; --surface: #1c2016; --surface-2: #20241a;
-    --text: #edf0e4; --muted: #98a086; --border: #343925;
-    --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
+    --bg: #141615; --surface: #1c201d; --surface-2: #20241f;
+    --text: #e9ece9; --muted: #949a95; --border: #33382f;
+    --accent: #6fae95; --accent-soft: #1f322b; --accent-ink: #bfe3d3;
     --good: #63c088; --good-soft: #1e3324;
-    --watch: #e3b552; --watch-soft: #3a2f14;
-    --heart: #ff6b85;
+    --watch: #d1a94f; --watch-soft: #3a3018;
+    --over: #e2735c; --over-soft: #3d241d;
+    --heart: #ef7a92;
   }
   * { box-sizing: border-box; }
   body {
@@ -181,7 +184,7 @@
   }
   .chip-good { background: var(--good-soft); color: var(--good); }
   .chip-watch { background: var(--watch-soft); color: var(--watch); }
-  .chip-over { background: var(--accent-soft); color: var(--accent); }
+  .chip-over { background: var(--over-soft); color: var(--over); }
   .chip-status { background: var(--surface-2); color: var(--muted); }
 
   .tips-panel summary {
