@@ -1,4 +1,24 @@
 {
+  "citrusford-26t473": {
+    "color_exterior": "Desert Sand",
+    "dealer": "Citrus Motors Ford",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "citrusford-26t473",
+    "last_seen": "2026-09-12",
+    "location": "Ontario, CA",
+    "price": 46995,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 46995
+      }
+    ],
+    "status": "active",
+    "stock_number": "26T473",
+    "trim": "Big Bend",
+    "url": "https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/"
+  },
   "kengrody-fb261461": {
     "color_exterior": "Marsh Gray",
     "dealer": "Ken Grody Ford Orange County",
@@ -18,5 +38,45 @@
     "stock_number": "FB261461",
     "trim": "Big Bend",
     "url": "https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/"
+  },
+  "kengrody-fc261066": {
+    "color_exterior": "Shadow Black",
+    "dealer": "Ken Grody Ford Orange County",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "kengrody-fc261066",
+    "last_seen": "2026-09-12",
+    "location": "Buena Park, CA",
+    "price": 42837,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 42837
+      }
+    ],
+    "status": "active",
+    "stock_number": "FC261066",
+    "trim": "Big Bend",
+    "url": "https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh8tla52232/"
+  },
+  "normreeves-260791": {
+    "color_exterior": "Avalanche Gray",
+    "dealer": "Norm Reeves Ford Superstore Cerritos",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "normreeves-260791",
+    "last_seen": "2026-09-12",
+    "location": "Cerritos, CA",
+    "price": 49351,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 49351
+      }
+    ],
+    "status": "active",
+    "stock_number": "260791",
+    "trim": "Outer Banks",
+    "url": "https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/"
   }
 }

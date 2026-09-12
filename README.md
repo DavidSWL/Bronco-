@@ -10,19 +10,27 @@ target purchase window closes.
 - Sticker price band: $40k-$45k
 - Colors: black, Marsh Gray, or another dark gray
 - Search area: Orange County / LA County / Inland Empire, around zip 92706
+- Sales tax tied to Anaheim/zip 92802 (7.75% combined rate) - the dealer's
+  own city rate applies at purchase, this is a planning estimate
 - Target buy date: **December 31, 2026** (no purchase before then)
 - Trade-in: paid off, $21,000 baseline value, tracked toward the target date
   with a depreciation estimate
 - **Out-of-pocket budget** (cash or financed, after the trade-in): $25k-$29k
   for a standard trim, up to $30k for a higher trim
+- **Upgraded tier**: a listing with both factory fog lights and the
+  360-degree camera (the camera requires the ~$2,825 Lux Package) gets an
+  extra $2,000 of budget room and its own section in the report
 
 ## What it does
 
 1. **Tracks listings** in `data/listings.json` — price, trim, color, dealer,
-   first/last seen date, and full price history per listing.
+   first/last seen date, full price history, and (optionally) whether it
+   has fog lights / the 360-degree camera.
 2. **Scores deals** (`bronco_tracker/deals.py`) by price vs. same-trim peer
    average, days on market, and any observed price drop. Listings sitting
-   21+ days are flagged as stale/negotiable.
+   21+ days are flagged as stale/negotiable. Also tracks the low/high/avg
+   price by trim for both active listings and confirmed sales (mark a
+   listing `--status sold` to feed the "what sold for" numbers).
 3. **Projects your trade-in's value** (`bronco_tracker/trade_in.py`) from
    today to the target date using a simple compounding monthly depreciation
    estimate — a planning number, not an appraisal.
@@ -53,11 +61,14 @@ python3 -m bronco_tracker.cli add \
   --color "Marsh Gray" \
   --price 44169 \
   --stock "FB261461" \
-  --url "https://..."
+  --url "https://..." \
+  --fog-lights --camera-360   # optional - marks it "upgraded"
 ```
 
 Running `add` again with the same `--id` updates the existing listing and
-appends to its price history if the price changed. Mark a listing gone with:
+appends to its price history if the price changed. Mark a listing gone with
+`--status sold` (feeds the sold-price stats) or `--status removed`
+(pulled/expired, doesn't count as a confirmed sale):
 
 ```bash
 python3 -m bronco_tracker.cli remove --id "dealer-slug-stocknumber" --status sold

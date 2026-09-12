@@ -10,7 +10,7 @@ from datetime import date
 
 # --- Buyer search criteria ---------------------------------------------
 
-ZIP_CODE = "92706"  # Santa Ana, CA
+ZIP_CODE = "92802"  # Anaheim, CA - used for the sales tax rate below
 SEARCH_AREAS = ["Orange County, CA", "Los Angeles County, CA", "Inland Empire, CA"]
 SEARCH_RADIUS_MILES = 60
 
@@ -66,20 +66,30 @@ OOP_CAP_HIGHER_TRIM = 30_000
 # California taxes the FULL vehicle price - it does NOT credit the trade-in
 # value against sales tax (one of only a few states that doesn't). The
 # trade-in only reduces what you owe out of pocket, not the taxable amount.
-# 9.25% is the combined rate for zip 92706 (Santa Ana); dealer-city rates
-# elsewhere in OC/LA/IE can differ by roughly +/-1.5 points, so treat this
-# as an estimate and get the real number on the dealer's OTD quote.
-SALES_TAX_RATE = 0.0925
+# California vehicle sales tax is based on the DEALER's city, not the
+# buyer's - 7.75% is the CDTFA combined rate for Anaheim/zip 92802. A
+# dealer in a different OC/LA/IE city may run a bit higher; treat this as
+# an estimate and get the real number on the dealer's OTD quote.
+SALES_TAX_RATE = 0.0775
 
 # CA dealer doc fee is capped by law (CVC 11713.1) at $85. Add a rough
 # estimate for DMV registration/title (varies with vehicle value/county).
 DOC_FEE = 85
 EST_REG_TITLE_FEES = 700
 
+# "Upgraded" listings - factory fog lights + the 360-degree camera (the
+# camera requires opting into the Lux Package, ~$2,825, on top of the
+# vehicle price) - get a little extra room in the budget rather than being
+# filtered out outright.
+UPGRADED_OOP_ALLOWANCE = 2_000
 
-def oop_cap_for_trim(trim: str | None) -> int:
-    """Out-of-pocket ceiling for a given trim."""
-    return OOP_CAP_HIGHER_TRIM if trim in HIGHER_TRIMS else OOP_CAP_STANDARD
+
+def oop_cap_for_trim(trim: str | None, upgraded: bool = False) -> int:
+    """Out-of-pocket ceiling for a given trim, with extra room if the
+    listing has the fog-light + 360-camera "upgraded" equipment.
+    """
+    cap = OOP_CAP_HIGHER_TRIM if trim in HIGHER_TRIMS else OOP_CAP_STANDARD
+    return cap + UPGRADED_OOP_ALLOWANCE if upgraded else cap
 
 
 # --- Data files -------------------------------------------------------------

@@ -1,9 +1,13 @@
 """Command-line entry points for the Bronco tracker.
 
     python -m bronco_tracker.cli add --id ... --dealer ... --trim ... \\
-        --color ... --price 44169 --url ... [--location ...] [--stock ...]
+        --color ... --price 44169 --url ... [--location ...] [--stock ...] \\
+        [--fog-lights] [--camera-360]
     python -m bronco_tracker.cli remove --id ...
     python -m bronco_tracker.cli report
+
+A listing with BOTH --fog-lights and --camera-360 lands in the "upgraded"
+category (see bronco_tracker/budget.py) with a bit more budget headroom.
 """
 from __future__ import annotations
 
@@ -22,6 +26,8 @@ def cmd_add(args: argparse.Namespace) -> None:
         "price": args.price,
         "stock_number": args.stock,
         "url": args.url,
+        "has_fog_lights": args.fog_lights,
+        "has_360_camera": args.camera_360,
     }
     fields = {k: v for k, v in fields.items() if v is not None}
     record = storage.upsert_listing(args.id, fields)
@@ -53,6 +59,8 @@ def main() -> None:
     p_add.add_argument("--price", type=int)
     p_add.add_argument("--stock")
     p_add.add_argument("--url")
+    p_add.add_argument("--fog-lights", dest="fog_lights", action=argparse.BooleanOptionalAction, default=None)
+    p_add.add_argument("--camera-360", dest="camera_360", action=argparse.BooleanOptionalAction, default=None)
     p_add.set_defaults(func=cmd_add)
 
     p_rm = sub.add_parser("remove", help="Mark a listing sold/removed")

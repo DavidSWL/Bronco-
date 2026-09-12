@@ -21,11 +21,15 @@ def _gather() -> dict[str, Any]:
 
     ranked = deals.rank_deals(listings)
     for r in ranked:
-        r["budget"] = budget.estimate_out_of_pocket(r.get("price"), r.get("trim"), trade_in_value)
+        upgraded = budget.is_upgraded(r)
+        r["budget"] = budget.estimate_out_of_pocket(r.get("price"), r.get("trim"), trade_in_value, upgraded=upgraded)
         r["email"] = budget.email_template(r, trade_in_value)
+
+    upgraded_picks = [r for r in ranked if r["budget"]["upgraded"]]
 
     return {
         "ranked": ranked,
+        "upgraded_picks": upgraded_picks,
         "sold": deals.inactive_summaries(listings),
         "trends": deals.trend_summary(listings),
         "ti": ti,
@@ -82,10 +86,39 @@ def build_report() -> str:
         )
         lines.append(f"- Sold/removed since tracking began: {trends['sold_or_removed_count']}")
         lines.append("")
-        lines.append("**Average price by trim:**")
-        for trim, avg in sorted(trends["avg_price_by_trim"].items(), key=lambda kv: kv[1]):
-            lines.append(f"- {trim}: {_fmt_money(avg)}")
+        lines.append("**Price range by trim (active listings):**")
+        for trim, stats in sorted(trends["price_by_trim"].items(), key=lambda kv: kv[1]["avg"]):
+            lines.append(
+                f"- {trim}: {_fmt_money(stats['low'])} - {_fmt_money(stats['high'])} "
+                f"(avg {_fmt_money(stats['avg'])}, n={stats['count']})"
+            )
+        if trends["sold_price_by_trim"]:
+            lines.append("")
+            lines.append(f"**What sold, by trim** ({trends['sold_count']} confirmed sales tracked):")
+            for trim, stats in sorted(trends["sold_price_by_trim"].items(), key=lambda kv: kv[1]["avg"]):
+                lines.append(
+                    f"- {trim}: sold {_fmt_money(stats['low'])} - {_fmt_money(stats['high'])} "
+                    f"(avg {_fmt_money(stats['avg'])}, n={stats['count']})"
+                )
     lines.append("")
+
+    if data["upgraded_picks"]:
+        lines.append("## Upgraded picks (fog lights + 360 camera)")
+        lines.append("")
+        lines.append(
+            f"These have the Lux Package (360-degree camera) plus fog lights, so they get "
+            f"{_fmt_money(config.UPGRADED_OOP_ALLOWANCE)} more budget room than a standard listing."
+        )
+        lines.append("")
+        for r in data["upgraded_picks"]:
+            b = r["budget"]
+            budget_note = "in budget" if b["within_budget"] else f"+{_fmt_money(b['over_by'])} over"
+            lines.append(
+                f"- {r.get('trim')} · {r.get('color_exterior')} — {_fmt_money(r.get('price'))} sticker, "
+                f"{_fmt_money(b['out_of_pocket'])} cash/finance ({budget_note}) "
+                f"at {r.get('dealer')} — [listing]({r.get('url', '')})"
+            )
+        lines.append("")
 
     lines.append("## Ranked deals (best first)")
     lines.append("")
@@ -138,13 +171,24 @@ def _e(value: Any) -> str:
 def build_html_report() -> str:
     data = _gather()
     ranked, trends, ti = data["ranked"], data["trends"], data["ti"]
+    upgraded_picks = data["upgraded_picks"]
 
     if trends["count"] == 0:
         market_html = "<p class='muted'>No active listings tracked yet.</p>"
     else:
         trim_rows = "".join(
-            f"<li>{_e(trim)}: <strong>{_fmt_money(avg)}</strong></li>"
-            for trim, avg in sorted(trends["avg_price_by_trim"].items(), key=lambda kv: kv[1])
+            f"<li>{_e(trim)}: <strong>{_fmt_money(s['low'])}&ndash;{_fmt_money(s['high'])}</strong> "
+            f"(avg {_fmt_money(s['avg'])}, n={s['count']})</li>"
+            for trim, s in sorted(trends["price_by_trim"].items(), key=lambda kv: kv[1]["avg"])
+        )
+        sold_rows = "".join(
+            f"<li>{_e(trim)}: sold <strong>{_fmt_money(s['low'])}&ndash;{_fmt_money(s['high'])}</strong> "
+            f"(avg {_fmt_money(s['avg'])}, n={s['count']})</li>"
+            for trim, s in sorted(trends["sold_price_by_trim"].items(), key=lambda kv: kv[1]["avg"])
+        )
+        sold_html = (
+            f"<p><strong>What sold, by trim</strong> ({trends['sold_count']} confirmed):</p><ul>{sold_rows}</ul>"
+            if trends["sold_price_by_trim"] else ""
         )
         market_html = f"""
         <div class="stat-grid">
@@ -155,8 +199,9 @@ def build_html_report() -> str:
         </div>
         <p>Price range: {_fmt_money(trends['min_price'])} &ndash; {_fmt_money(trends['max_price'])}.
         Sold/removed since tracking began: {trends['sold_or_removed_count']}.</p>
-        <p><strong>Average price by trim:</strong></p>
+        <p><strong>Price range by trim (active):</strong></p>
         <ul>{trim_rows}</ul>
+        {sold_html}
         """
 
     if not ranked:
@@ -203,6 +248,32 @@ def build_html_report() -> str:
         """
 
     drift_sign = "-" if ti["estimated_drift"] < 0 else "+"
+
+    if not upgraded_picks:
+        upgraded_html = ""
+    else:
+        up_rows = []
+        for r in upgraded_picks:
+            b = r["budget"]
+            badge = (
+                "<span class='badge good'>in budget</span>" if b["within_budget"]
+                else f"<span class='badge over'>+{_fmt_money(b['over_by'])}</span>"
+            )
+            url = _e(r.get("url", "")) if r.get("url") else ""
+            link = f"<a href='{url}' target='_blank' rel='noopener'>view</a>" if url else "&mdash;"
+            up_rows.append(
+                f"<li>{_e(r.get('trim'))} &middot; {_e(r.get('color_exterior'))} &mdash; "
+                f"{_fmt_money(r.get('price'))} sticker / {_fmt_money(b['out_of_pocket'])} cash-finance "
+                f"{badge} at {_e(r.get('dealer'))} &mdash; {link}</li>"
+            )
+        upgraded_html = f"""
+        <div class="card">
+          <h2>Upgraded picks (fog lights + 360 camera)</h2>
+          <p class="muted">Has the Lux Package (360&deg; camera) plus fog lights &mdash;
+          {_fmt_money(config.UPGRADED_OOP_ALLOWANCE)} extra budget room vs. a standard listing.</p>
+          <ul>{"".join(up_rows)}</ul>
+        </div>
+        """
 
     return f"""<!doctype html>
 <html lang="en">
@@ -285,7 +356,7 @@ def build_html_report() -> str:
     <h2>Market snapshot</h2>
     {market_html}
   </div>
-
+  {upgraded_html}
   <div class="card">
     <h2>Ranked deals (best first)</h2>
     {deals_html}
@@ -329,13 +400,27 @@ def build_artifact_html() -> str:
     """
     data = _gather()
     ranked, sold, trends, ti = data["ranked"], data["sold"], data["trends"], data["ti"]
+    upgraded_picks = data["upgraded_picks"]
 
     if trends["count"] == 0:
         market_html = "<p class='muted'>No active listings tracked yet.</p>"
     else:
         trim_chips = "".join(
-            f"<div class='trim-row'><span>{_e(trim)}</span><span class='num'>{_fmt_money(avg)}</span></div>"
-            for trim, avg in sorted(trends["avg_price_by_trim"].items(), key=lambda kv: kv[1])
+            f"<div class='trim-row'><span>{_e(trim)}</span>"
+            f"<span class='num'>{_fmt_money(s['low'])}&ndash;{_fmt_money(s['high'])} "
+            f"<span class='muted small'>(avg {_fmt_money(s['avg'])}, n={s['count']})</span></span></div>"
+            for trim, s in sorted(trends["price_by_trim"].items(), key=lambda kv: kv[1]["avg"])
+        )
+        sold_trim_rows = "".join(
+            f"<div class='trim-row'><span>{_e(trim)}</span>"
+            f"<span class='num'>{_fmt_money(s['low'])}&ndash;{_fmt_money(s['high'])} "
+            f"<span class='muted small'>(avg {_fmt_money(s['avg'])}, n={s['count']})</span></span></div>"
+            for trim, s in sorted(trends["sold_price_by_trim"].items(), key=lambda kv: kv[1]["avg"])
+        )
+        sold_section = (
+            f"<h3 class='sub' style='margin-top:16px'>What sold, by trim ({trends['sold_count']} confirmed)</h3>"
+            f"<div class='trim-list'>{sold_trim_rows}</div>"
+            if trends["sold_price_by_trim"] else ""
         )
         market_html = f"""
         <div class="tile-grid">
@@ -349,14 +434,47 @@ def build_artifact_html() -> str:
           <span class="range-track"><span class="range-fill"></span></span>
           <span class="num">{_fmt_money(trends['max_price'])}</span>
         </div>
-        <h3 class="sub">Average price by trim</h3>
+        <h3 class="sub">Price range by trim</h3>
         <div class="trim-list">{trim_chips}</div>
+        {sold_section}
         """
 
     trims_available = sorted({r.get("trim") for r in ranked if r.get("trim")})
     trim_chip_buttons = "".join(
         f"<button type=\"button\" class=\"chipbtn\" data-trim=\"{_e(t)}\">{_e(t)}</button>" for t in trims_available
     )
+
+    if not upgraded_picks:
+        upgraded_html = (
+            "<p class='muted'>None found yet &mdash; the daily sweep is watching for Broncos with the "
+            f"Lux Package (360&deg; camera) and fog lights, up to {_fmt_money(config.UPGRADED_OOP_ALLOWANCE)} "
+            "past your normal budget.</p>"
+        )
+    else:
+        up_items = []
+        for r in upgraded_picks:
+            b = r["budget"]
+            budget_chip = (
+                "<span class='chip chip-good'>in budget</span>" if b["within_budget"]
+                else f"<span class='chip chip-over'>+{_fmt_money(b['over_by'])}</span>"
+            )
+            url = _e(r.get("url", "")) if r.get("url") else ""
+            link = f"<a href='{url}' target='_blank' rel='noopener'>listing &rarr;</a>" if url else ""
+            up_items.append(f"""
+            <div class="deal-row state-neutral" style="padding:12px 16px">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center">
+                <div>
+                  <div class="deal-title">{_e(r.get('trim'))} &middot; {_e(r.get('color_exterior'))} {budget_chip}</div>
+                  <div class="deal-sub muted">{_e(r.get('dealer'))} &mdash; {r['days_on_market']} days on lot</div>
+                </div>
+                <div class="deal-figures">
+                  <span class="deal-price num">{_fmt_money(b['out_of_pocket'])} cash/finance</span>
+                  <span class="deal-vs num small">sticker {_fmt_money(r.get('price'))}</span>
+                </div>
+              </div>
+              {f'<div class="deal-link" style="margin-top:8px">{link}</div>' if link else ''}
+            </div>""")
+        upgraded_html = f"<div class='deal-list'>{''.join(up_items)}</div>"
 
     deals_json = _json_for_script(ranked)
     sold_json = _json_for_script(sold)
@@ -587,6 +705,11 @@ def build_artifact_html() -> str:
   </section>
 
   <section>
+    <h2 class="sub">Upgraded picks &middot; fog lights + 360&deg; camera</h2>
+    __UPGRADED_HTML__
+  </section>
+
+  <section>
     <div class="section-head">
       <h2 class="sub">Ranked deals</h2>
       <span class="count-pill"><span id="dealCount">0</span> shown</span>
@@ -728,7 +851,8 @@ def build_artifact_html() -> str:
     return '<details class="deal-row state-' + s + '">' +
       '<summary>' +
         '<div>' +
-          '<div class="deal-title">' + esc(d.trim) + ' &middot; ' + esc(d.color_exterior) + ' ' + stateChip(s) + '</div>' +
+          '<div class="deal-title">' + esc(d.trim) + ' &middot; ' + esc(d.color_exterior) + ' ' + stateChip(s) +
+            (b.upgraded ? ' <span class="chip chip-status">upgraded</span>' : '') + '</div>' +
           '<div class="deal-sub muted">' + esc(d.dealer) + ' &mdash; ' + esc(d.days_on_market) + ' days on lot</div>' +
         '</div>' +
         '<div class="deal-figures">' +
@@ -827,6 +951,7 @@ def build_artifact_html() -> str:
         "__TI_DRIFT_SIGN__": "&minus;" if ti["estimated_drift"] < 0 else "+",
         "__TI_DRIFT_ABS_FMT__": _fmt_money(abs(ti["estimated_drift"])),
         "__MARKET_HTML__": market_html,
+        "__UPGRADED_HTML__": upgraded_html,
         "__TRIM_CHIP_BUTTONS__": trim_chip_buttons,
         "__SOLD_COUNT__": str(len(sold)),
         "__DEALS_JSON__": deals_json,

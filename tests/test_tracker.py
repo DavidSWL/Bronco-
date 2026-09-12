@@ -81,6 +81,24 @@ class DealsTests(TrackerTestCase):
         self.assertEqual(trends["count"], 1)
         self.assertEqual(trends["sold_or_removed_count"], 1)
 
+    def test_trend_summary_price_range_by_trim(self):
+        storage.upsert_listing("d1", {"trim": "Big Bend", "price": 42000})
+        storage.upsert_listing("d2", {"trim": "Big Bend", "price": 47000})
+        trends = deals.trend_summary()
+        stats = trends["price_by_trim"]["Big Bend"]
+        self.assertEqual(stats["low"], 42000)
+        self.assertEqual(stats["high"], 47000)
+        self.assertEqual(stats["count"], 2)
+
+    def test_trend_summary_sold_price_by_trim_only_counts_sold(self):
+        storage.upsert_listing("d1", {"trim": "Big Bend", "price": 44000})
+        storage.upsert_listing("d2", {"trim": "Big Bend", "price": 43000})
+        storage.mark_removed("d1", status="sold")
+        storage.mark_removed("d2", status="removed")
+        trends = deals.trend_summary()
+        self.assertEqual(trends["sold_count"], 1)
+        self.assertEqual(trends["sold_price_by_trim"]["Big Bend"]["low"], 44000)
+
 
 class TradeInTests(TrackerTestCase):
     def test_value_depreciates_over_time(self):
@@ -139,6 +157,16 @@ class BudgetTests(unittest.TestCase):
         self.assertIn("out-the-door", email["body"].lower())
         self.assertIn("21,000", email["body"])
         self.assertTrue(email["mailto"].startswith("mailto:?subject="))
+
+    def test_is_upgraded_requires_both_features(self):
+        self.assertFalse(budget.is_upgraded({"has_fog_lights": True}))
+        self.assertFalse(budget.is_upgraded({"has_360_camera": True}))
+        self.assertTrue(budget.is_upgraded({"has_fog_lights": True, "has_360_camera": True}))
+
+    def test_upgraded_listing_gets_extra_budget_room(self):
+        plain = budget.estimate_out_of_pocket(46995, "Big Bend", trade_in_value=20000, upgraded=False)
+        upgraded = budget.estimate_out_of_pocket(46995, "Big Bend", trade_in_value=20000, upgraded=True)
+        self.assertEqual(upgraded["out_of_pocket_cap"] - plain["out_of_pocket_cap"], config.UPGRADED_OOP_ALLOWANCE)
 
 
 if __name__ == "__main__":

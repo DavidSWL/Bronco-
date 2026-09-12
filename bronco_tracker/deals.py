@@ -76,11 +76,32 @@ def inactive_summaries(listings: dict[str, dict[str, Any]] | None = None) -> lis
     return out
 
 
+def _price_stats_by_trim(records: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    by_trim: dict[str, list[int]] = {}
+    for r in records:
+        if r.get("price") is not None:
+            by_trim.setdefault(r.get("trim", "Unknown"), []).append(r["price"])
+    return {
+        t: {"low": min(p), "high": max(p), "avg": round(mean(p)), "count": len(p)}
+        for t, p in by_trim.items()
+    }
+
+
 def trend_summary(listings: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     listings = listings if listings is not None else storage.load_listings()
     live = active(listings)
+    sold_only = [r for r in listings.values() if r.get("status") == "sold"]
+    sold_or_removed = [r for r in listings.values() if r.get("status") != "active"]
+
+    result = {
+        "count": len(live),
+        "price_by_trim": _price_stats_by_trim(live),
+        "sold_price_by_trim": _price_stats_by_trim(sold_only),
+        "sold_or_removed_count": len(sold_or_removed),
+        "sold_count": len(sold_only),
+    }
     if not live:
-        return {"count": 0}
+        return result
 
     prices = [r["price"] for r in live if r.get("price") is not None]
     dom_list = [storage.days_on_market(r) for r in live]
@@ -88,15 +109,12 @@ def trend_summary(listings: dict[str, dict[str, Any]] | None = None) -> dict[str
     for r in live:
         by_trim.setdefault(r.get("trim", "Unknown"), []).append(r["price"])
 
-    sold_or_removed = [r for r in listings.values() if r.get("status") != "active"]
-
-    return {
-        "count": len(live),
+    result.update({
         "avg_price": round(mean(prices)) if prices else None,
         "min_price": min(prices) if prices else None,
         "max_price": max(prices) if prices else None,
         "avg_days_on_market": round(mean(dom_list), 1) if dom_list else None,
         "avg_price_by_trim": {t: round(mean(p)) for t, p in by_trim.items()},
         "stale_count": sum(1 for d in dom_list if d >= config.STALE_DAYS_ON_MARKET),
-        "sold_or_removed_count": len(sold_or_removed),
-    }
+    })
+    return result

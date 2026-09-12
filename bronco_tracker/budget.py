@@ -15,13 +15,18 @@ from urllib.parse import quote
 from . import config
 
 
-def estimate_out_of_pocket(price: int | None, trim: str | None, trade_in_value: float) -> dict[str, Any]:
+def is_upgraded(record: dict[str, Any]) -> bool:
+    """Fog lights + 360-degree camera - the buyer's separate "upgraded" tier."""
+    return bool(record.get("has_fog_lights")) and bool(record.get("has_360_camera"))
+
+
+def estimate_out_of_pocket(price: int | None, trim: str | None, trade_in_value: float, upgraded: bool = False) -> dict[str, Any]:
     price = price or 0
     tax = round(price * config.SALES_TAX_RATE)
     fees = config.DOC_FEE + config.EST_REG_TITLE_FEES
     est_otd = price + tax + fees
     out_of_pocket = round(est_otd - trade_in_value)
-    cap = config.oop_cap_for_trim(trim)
+    cap = config.oop_cap_for_trim(trim, upgraded=upgraded)
 
     return {
         "price": price,
@@ -33,6 +38,7 @@ def estimate_out_of_pocket(price: int | None, trim: str | None, trade_in_value: 
         "out_of_pocket_cap": cap,
         "within_budget": out_of_pocket <= cap,
         "over_by": max(out_of_pocket - cap, 0),
+        "upgraded": upgraded,
     }
 
 
