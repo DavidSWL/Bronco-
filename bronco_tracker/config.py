@@ -14,7 +14,8 @@ ZIP_CODE = "92802"  # Anaheim, CA - used for the sales tax rate below
 SEARCH_AREAS = ["Orange County, CA", "Los Angeles County, CA", "Inland Empire, CA"]
 SEARCH_RADIUS_MILES = 60
 
-CONDITION = "new"
+CONDITION = "new"  # 0 miles - not used, not CPO, not a demo/loaner with delivery mileage
+SOURCE = "franchised Ford dealer only"  # the dealer's own inventory page, not a marketplace aggregator
 DOORS = 4
 ROOF = "hardtop"
 

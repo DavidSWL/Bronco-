@@ -4,7 +4,9 @@ Tracks new-Bronco inventory deals against your buying criteria, until your
 target purchase window closes.
 
 **Your criteria** (see `bronco_tracker/config.py` to change any of it):
-- New 2024-2026 Ford Bronco, 4-door hardtop
+- New, 0 miles - no used, CPO, or demo/loaner units - from a franchised Ford
+  dealer's own inventory (not a marketplace aggregator listing)
+- 2024-2026 Ford Bronco, 4-door hardtop
 - Trim: Big Bend or Outer Banks preferred; a higher trim (Black Diamond,
   Badlands, etc.) is fine if it still fits the out-of-pocket budget below
 - Sticker price band: $40k-$45k
