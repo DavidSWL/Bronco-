@@ -5,7 +5,7 @@ import html as html_escape
 from datetime import date
 from typing import Any
 
-from . import config, deals, storage, trade_in
+from . import budget, config, deals, storage, trade_in
 
 
 def _fmt_money(n) -> str:
@@ -14,11 +14,22 @@ def _fmt_money(n) -> str:
 
 def _gather() -> dict[str, Any]:
     listings = storage.load_listings()
+    ti = trade_in.projection_to_target(storage.load_trade_in())
+    # Use the trade-in's value projected to the target buy date, since
+    # that's roughly when the trade actually happens.
+    trade_in_value = ti["projected_at_target"]
+
+    ranked = deals.rank_deals(listings)
+    for r in ranked:
+        r["budget"] = budget.estimate_out_of_pocket(r.get("price"), r.get("trim"), trade_in_value)
+        r["email"] = budget.email_template(r, trade_in_value)
+
     return {
-        "ranked": deals.rank_deals(listings),
+        "ranked": ranked,
         "sold": deals.inactive_summaries(listings),
         "trends": deals.trend_summary(listings),
-        "ti": trade_in.projection_to_target(storage.load_trade_in()),
+        "ti": ti,
+        "trade_in_value": trade_in_value,
         "days_left": (config.TARGET_BUY_DATE - date.today()).days,
         "today": date.today().isoformat(),
     }
@@ -78,19 +89,29 @@ def build_report() -> str:
 
     lines.append("## Ranked deals (best first)")
     lines.append("")
+    lines.append(
+        f"Out-of-pocket assumes your trade-in is worth {_fmt_money(data['trade_in_value'])} at purchase "
+        f"time and California's {config.SALES_TAX_RATE:.2%} sales tax (CA taxes the full price - the "
+        f"trade-in doesn't reduce the taxable amount). Budget: {_fmt_money(config.OOP_CAP_STANDARD)} for "
+        f"Big Bend/Outer Banks, up to {_fmt_money(config.OOP_CAP_HIGHER_TRIM)} for a higher trim."
+    )
+    lines.append("")
     if not ranked:
         lines.append("_Nothing tracked yet. Add listings as you find them._")
     else:
         lines.append(
-            "| Score | Trim | Color | Price | vs peer avg | Days on market | Price drop | Dealer | Link |"
+            "| Score | Trim | Color | Price | Est. cash/finance | Budget | vs peer avg | Days on market | Price drop | Dealer | Link |"
         )
-        lines.append("|---|---|---|---|---|---|---|---|---|")
+        lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
         for r in ranked:
             stale_flag = " 🕓" if r["is_stale"] else ""
             drop_flag = f"-{_fmt_money(r['price_drop'])}" if r["price_drop"] > 0 else "—"
+            b = r["budget"]
+            budget_flag = "✅ in budget" if b["within_budget"] else f"⚠️ +{_fmt_money(b['over_by'])}"
             lines.append(
                 f"| {r['score']} | {r.get('trim', '?')} | {r.get('color_exterior', '?')} | "
-                f"{_fmt_money(r.get('price'))} | {r['pct_below_peer_avg']}% | "
+                f"{_fmt_money(r.get('price'))} | {_fmt_money(b['out_of_pocket'])} | {budget_flag} | "
+                f"{r['pct_below_peer_avg']}% | "
                 f"{r['days_on_market']}{stale_flag} | {drop_flag} | "
                 f"{r.get('dealer', '?')} | [listing]({r.get('url', '')}) |"
             )
@@ -99,6 +120,12 @@ def build_report() -> str:
         "_Score blends price-vs-peer-average, days on market, and observed price drops. "
         "🕓 = stale listing (21+ days), typically more negotiable._"
     )
+    lines.append("")
+
+    lines.append("## Getting the best deal")
+    lines.append("")
+    for tip in budget.NEGOTIATION_TIPS:
+        lines.append(f"- {tip}")
     lines.append("")
 
     return "\n".join(lines)
@@ -141,12 +168,19 @@ def build_html_report() -> str:
             drop = f"-{_fmt_money(r['price_drop'])}" if r["price_drop"] > 0 else "&mdash;"
             url = _e(r.get("url", "")) if r.get("url") else ""
             link = f"<a href='{url}' target='_blank' rel='noopener'>view</a>" if url else "&mdash;"
+            b = r["budget"]
+            budget_badge = (
+                "<span class='badge good'>in budget</span>" if b["within_budget"]
+                else f"<span class='badge over'>+{_fmt_money(b['over_by'])}</span>"
+            )
             rows.append(f"""
               <tr>
                 <td class="score">{r['score']}</td>
                 <td>{_e(r.get('trim'))}</td>
                 <td>{_e(r.get('color_exterior'))}</td>
                 <td>{_fmt_money(r.get('price'))}</td>
+                <td>{_fmt_money(b['out_of_pocket'])}</td>
+                <td>{budget_badge}</td>
                 <td>{r['pct_below_peer_avg']}%</td>
                 <td>{r['days_on_market']}{stale}</td>
                 <td>{drop}</td>
@@ -154,11 +188,14 @@ def build_html_report() -> str:
                 <td>{link}</td>
               </tr>""")
         deals_html = f"""
+        <p class="muted">Out-of-pocket assumes a {_fmt_money(data['trade_in_value'])} trade-in and CA's
+        {config.SALES_TAX_RATE:.2%} sales tax (CA taxes the full price, trade-in doesn't reduce it).
+        Budget: {_fmt_money(config.OOP_CAP_STANDARD)} standard trim, up to {_fmt_money(config.OOP_CAP_HIGHER_TRIM)} for a higher trim.</p>
         <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Score</th><th>Trim</th><th>Color</th><th>Price</th><th>vs peer avg</th>
-            <th>Days on market</th><th>Price drop</th><th>Dealer</th><th></th>
+            <th>Score</th><th>Trim</th><th>Color</th><th>Price</th><th>Est. cash/finance</th><th>Budget</th>
+            <th>vs peer avg</th><th>Days on market</th><th>Price drop</th><th>Dealer</th><th></th>
           </tr></thead>
           <tbody>{''.join(rows)}</tbody>
         </table>
@@ -216,6 +253,12 @@ def build_html_report() -> str:
     background: var(--accent-bg); color: var(--accent); border-radius: 999px;
     padding: 2px 8px; font-size: 0.72rem; font-weight: 600;
   }}
+  .badge.good {{ background: #e2f2e6; color: #2f7d4f; }}
+  .badge.over {{ background: #fbeee7; color: #b3491f; }}
+  @media (prefers-color-scheme: dark) {{
+    .badge.good {{ background: #1e3324; color: #63c088; }}
+    .badge.over {{ background: #3c2415; color: #ff8a5c; }}
+  }}
   a {{ color: var(--accent); }}
   ul {{ margin: 0; padding-left: 20px; }}
   footer {{ color: var(--muted); font-size: 0.8rem; margin-top: 8px; }}
@@ -247,6 +290,11 @@ def build_html_report() -> str:
     <h2>Ranked deals (best first)</h2>
     {deals_html}
     <footer>Score blends price-vs-peer-average, days on market, and observed price drops. "stale" = 21+ days on market, typically more negotiable.</footer>
+  </div>
+
+  <div class="card">
+    <h2>Getting the best deal</h2>
+    <ul>{"".join(f"<li>{_e(tip)}</li>" for tip in budget.NEGOTIATION_TIPS)}</ul>
   </div>
 </div>
 </body>
@@ -479,7 +527,24 @@ def build_artifact_html() -> str:
   }
   .chip-good { background: var(--good-soft); color: var(--good); }
   .chip-watch { background: var(--watch-soft); color: var(--watch); }
+  .chip-over { background: var(--accent-soft); color: var(--accent); }
   .chip-status { background: var(--surface-2); color: var(--muted); }
+
+  .tips-panel summary {
+    cursor: pointer; font-family: var(--font-display); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 1rem; color: var(--muted); list-style: none;
+  }
+  .tips-panel summary::-webkit-details-marker { display: none; }
+  .tips-panel summary::before { content: '\25b8'; display: inline-block; margin-right: 6px; transition: transform 0.15s; }
+  .tips-panel[open] summary::before { transform: rotate(90deg); }
+  .tips-panel ul { margin: 14px 0 0; padding-left: 20px; font-size: 0.88rem; }
+  .tips-panel li { margin-bottom: 8px; }
+  .tips-panel li:last-child { margin-bottom: 0; }
+  .email-btn {
+    display: inline-block; margin-top: 10px; font-family: var(--font-body); font-weight: 500;
+    font-size: 0.82rem; color: #fff; background: var(--accent); border-radius: 8px;
+    padding: 7px 14px; text-decoration: none;
+  }
 
   footer.note { color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
   a { color: var(--accent); }
@@ -509,6 +574,11 @@ def build_artifact_html() -> str:
       <div class="gauge-value num" data-countup="__TI_PROJECTED__" data-money="1">__TI_PROJECTED_FMT__</div>
       <p class="gauge-note">__TI_DRIFT_SIGN__ __TI_DRIFT_ABS_FMT__ est. drift</p>
     </div>
+    <div class="gauge">
+      <p class="eyebrow">Cash/finance budget</p>
+      <div class="gauge-value num" data-countup="__OOP_CAP_STANDARD__" data-money="1">__OOP_CAP_STANDARD_FMT__</div>
+      <p class="gauge-note">up to __OOP_CAP_HIGHER_FMT__ for a higher trim</p>
+    </div>
   </div>
 
   <section>
@@ -527,6 +597,7 @@ def build_artifact_html() -> str:
         <input type="search" id="dealSearch" class="search-input" placeholder="Search dealer, trim, color&hellip;" aria-label="Search deals">
         <select id="dealSort" class="sort-select" aria-label="Sort deals">
           <option value="score">Best deal</option>
+          <option value="oop_asc">Cash/finance: low to high</option>
           <option value="price_asc">Price: low to high</option>
           <option value="price_desc">Price: high to low</option>
           <option value="dom">Days on lot</option>
@@ -543,10 +614,17 @@ def build_artifact_html() -> str:
       <div class="sold-list" id="soldList" hidden></div>
     </div>
 
-    <footer class="note">Green = priced below peers or already cut. Amber = 21+ days on lot, worth a call. Tap a listing to see its price history. Ranked by a blend of price-vs-peers, days on lot, and observed price cuts.</footer>
+    <footer class="note">Est. cash/finance assumes a __TRADE_IN_VALUE_FMT__ trade-in and CA's 9.25% sales tax (CA taxes the full price - trade-in doesn't reduce it). Green chip = priced below peers or already cut; amber = 21+ days on lot. Tap a listing for its price history and a ready-to-send dealer email.</footer>
   </section>
 
-  <footer class="note">Trade-in figures are a planning estimate (compounding monthly depreciation), not an appraisal.</footer>
+  <section>
+    <details class="tips-panel">
+      <summary>Getting the best deal</summary>
+      <ul>__TIPS_HTML__</ul>
+    </details>
+  </section>
+
+  <footer class="note">Trade-in and out-of-pocket figures are planning estimates, not appraisals or dealer quotes.</footer>
 </div>
 
 <script type="application/json" id="dealData">__DEALS_JSON__</script>
@@ -631,13 +709,22 @@ def build_artifact_html() -> str:
     if (state === 'watch') return '<span class="chip chip-watch">watch</span>';
     return '';
   }
+  function budgetChip(b) {
+    return b.within_budget
+      ? '<span class="chip chip-good">in budget</span>'
+      : '<span class="chip chip-over">+' + esc(money(b.over_by)) + '</span>';
+  }
 
   function renderDeal(d) {
     var s = dealState(d);
+    var b = d.budget || {};
     var drop = d.price_drop > 0
       ? '<span class="delta down">&minus;' + esc(money(d.price_drop)) + '</span>'
       : '<span class="muted small">&mdash;</span>';
-    var link = d.url ? '<div class="deal-link"><a href="' + esc(d.url) + '" target="_blank" rel="noopener">listing &rarr;</a></div>' : '';
+    var link = d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">listing &rarr;</a>' : '';
+    var emailBtn = (d.email && d.email.mailto)
+      ? '<a class="email-btn" href="' + d.email.mailto + '">Email dealer for OTD price</a>'
+      : '';
     return '<details class="deal-row state-' + s + '">' +
       '<summary>' +
         '<div>' +
@@ -645,8 +732,9 @@ def build_artifact_html() -> str:
           '<div class="deal-sub muted">' + esc(d.dealer) + ' &mdash; ' + esc(d.days_on_market) + ' days on lot</div>' +
         '</div>' +
         '<div class="deal-figures">' +
-          '<span class="deal-price num">' + esc(money(d.price)) + '</span>' +
-          '<span class="deal-vs num small">' + esc(d.pct_below_peer_avg) + '% vs peers</span>' +
+          budgetChip(b) +
+          '<span class="deal-price num">' + esc(money(b.out_of_pocket)) + ' cash/finance</span>' +
+          '<span class="deal-vs num small">sticker ' + esc(money(d.price)) + ' &middot; ' + esc(d.pct_below_peer_avg) + '% vs peers</span>' +
           drop +
         '</div>' +
         '<span class="caret">&#9656;</span>' +
@@ -654,7 +742,8 @@ def build_artifact_html() -> str:
       '<div class="deal-detail">' +
         sparkline(d.price_history) +
         historyTable(d.price_history) +
-        link +
+        '<div class="deal-link">' + link + '</div>' +
+        emailBtn +
       '</div>' +
     '</details>';
   }
@@ -671,6 +760,7 @@ def build_artifact_html() -> str:
     });
     var sorters = {
       score: function (a, b) { return b.score - a.score; },
+      oop_asc: function (a, b) { return (a.budget.out_of_pocket || 0) - (b.budget.out_of_pocket || 0); },
       price_asc: function (a, b) { return (a.price || 0) - (b.price || 0); },
       price_desc: function (a, b) { return (b.price || 0) - (a.price || 0); },
       dom: function (a, b) { return b.days_on_market - a.days_on_market; },
@@ -741,6 +831,11 @@ def build_artifact_html() -> str:
         "__SOLD_COUNT__": str(len(sold)),
         "__DEALS_JSON__": deals_json,
         "__SOLD_JSON__": sold_json,
+        "__OOP_CAP_STANDARD__": str(config.OOP_CAP_STANDARD),
+        "__OOP_CAP_STANDARD_FMT__": _fmt_money(config.OOP_CAP_STANDARD),
+        "__OOP_CAP_HIGHER_FMT__": _fmt_money(config.OOP_CAP_HIGHER_TRIM),
+        "__TRADE_IN_VALUE_FMT__": _fmt_money(data["trade_in_value"]),
+        "__TIPS_HTML__": "".join(f"<li>{_e(tip)}</li>" for tip in budget.NEGOTIATION_TIPS),
     }
     for token, value in replacements.items():
         template = template.replace(token, value)

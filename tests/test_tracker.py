@@ -8,7 +8,7 @@ from datetime import date, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from bronco_tracker import config, deals, storage, trade_in  # noqa: E402
+from bronco_tracker import budget, config, deals, storage, trade_in  # noqa: E402
 
 
 class TrackerTestCase(unittest.TestCase):
@@ -105,6 +105,40 @@ class TradeInTests(TrackerTestCase):
         )
         self.assertIn("projected_at_target", result)
         self.assertLessEqual(result["projected_at_target"], result["baseline_value"])
+
+
+class BudgetTests(unittest.TestCase):
+    def test_ca_tax_applies_to_full_price_not_net_of_trade(self):
+        result = budget.estimate_out_of_pocket(44169, "Big Bend", trade_in_value=20099)
+        expected_tax = round(44169 * config.SALES_TAX_RATE)
+        expected_fees = config.DOC_FEE + config.EST_REG_TITLE_FEES
+        expected_otd = 44169 + expected_tax + expected_fees
+        self.assertEqual(result["estimated_otd"], expected_otd)
+        self.assertEqual(result["out_of_pocket"], expected_otd - 20099)
+
+    def test_standard_trim_uses_standard_cap(self):
+        result = budget.estimate_out_of_pocket(45000, "Outer Banks", trade_in_value=20000)
+        self.assertEqual(result["out_of_pocket_cap"], config.OOP_CAP_STANDARD)
+
+    def test_higher_trim_uses_higher_cap(self):
+        result = budget.estimate_out_of_pocket(45000, "Badlands", trade_in_value=20000)
+        self.assertEqual(result["out_of_pocket_cap"], config.OOP_CAP_HIGHER_TRIM)
+
+    def test_within_budget_flag(self):
+        cheap = budget.estimate_out_of_pocket(30000, "Big Bend", trade_in_value=20000)
+        pricey = budget.estimate_out_of_pocket(60000, "Big Bend", trade_in_value=20000)
+        self.assertTrue(cheap["within_budget"])
+        self.assertFalse(pricey["within_budget"])
+        self.assertGreater(pricey["over_by"], 0)
+        self.assertEqual(cheap["over_by"], 0)
+
+    def test_email_template_keeps_price_and_trade_separate(self):
+        record = {"trim": "Big Bend", "color_exterior": "Marsh Gray", "stock_number": "FB1", "dealer": "Test Ford"}
+        email = budget.email_template(record, trade_in_value=21000)
+        self.assertIn("FB1", email["subject"])
+        self.assertIn("out-the-door", email["body"].lower())
+        self.assertIn("21,000", email["body"])
+        self.assertTrue(email["mailto"].startswith("mailto:?subject="))
 
 
 if __name__ == "__main__":

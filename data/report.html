@@ -47,6 +47,12 @@
     background: var(--accent-bg); color: var(--accent); border-radius: 999px;
     padding: 2px 8px; font-size: 0.72rem; font-weight: 600;
   }
+  .badge.good { background: #e2f2e6; color: #2f7d4f; }
+  .badge.over { background: #fbeee7; color: #b3491f; }
+  @media (prefers-color-scheme: dark) {
+    .badge.good { background: #1e3324; color: #63c088; }
+    .badge.over { background: #3c2415; color: #ff8a5c; }
+  }
   a { color: var(--accent); }
   ul { margin: 0; padding-left: 20px; }
   footer { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
@@ -88,11 +94,14 @@
   <div class="card">
     <h2>Ranked deals (best first)</h2>
     
+        <p class="muted">Out-of-pocket assumes a $20,099 trade-in and CA's
+        9.25% sales tax (CA taxes the full price, trade-in doesn't reduce it).
+        Budget: $29,000 standard trim, up to $30,000 for a higher trim.</p>
         <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Score</th><th>Trim</th><th>Color</th><th>Price</th><th>vs peer avg</th>
-            <th>Days on market</th><th>Price drop</th><th>Dealer</th><th></th>
+            <th>Score</th><th>Trim</th><th>Color</th><th>Price</th><th>Est. cash/finance</th><th>Budget</th>
+            <th>vs peer avg</th><th>Days on market</th><th>Price drop</th><th>Dealer</th><th></th>
           </tr></thead>
           <tbody>
               <tr>
@@ -100,6 +109,8 @@
                 <td>Big Bend</td>
                 <td>Marsh Gray</td>
                 <td>$44,169</td>
+                <td>$28,941</td>
+                <td><span class='badge good'>in budget</span></td>
                 <td>0.0%</td>
                 <td>0</td>
                 <td>&mdash;</td>
@@ -110,6 +121,11 @@
         </div>
         
     <footer>Score blends price-vs-peer-average, days on market, and observed price drops. "stale" = 21+ days on market, typically more negotiable.</footer>
+  </div>
+
+  <div class="card">
+    <h2>Getting the best deal</h2>
+    <ul><li>Email 3-4 dealers the identical message with the stock number and ask for their best out-the-door (OTD) price - total with tax, doc fee, and DMV, before any trade-in.</li><li>Get the vehicle price and the trade-in appraisal as two separate numbers. A dealer can hide markup in either one if they&#x27;re combined into a single &#x27;you&#x27;ll pay X&#x27; figure.</li><li>Never negotiate off MSRP or a monthly payment - only the total OTD number. A low monthly payment can hide a longer loan term or a bad trade value.</li><li>Reply to the lowest OTD quote you get and ask the others if they&#x27;ll beat it - dealers will often move on a real competing number in writing.</li><li>Get the OTD quote in an email or text before you visit, so there&#x27;s a paper trail if the in-person number changes.</li><li>End of month/quarter, dealers are more motivated to hit sales quotas - a stale listing (21+ days) is extra leverage on top of that.</li></ul>
   </div>
 </div>
 </body>
