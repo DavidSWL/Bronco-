@@ -84,6 +84,12 @@ EST_REG_TITLE_FEES = 700
 # filtered out outright.
 UPGRADED_OOP_ALLOWANCE = 2_000
 
+# Rough monthly-payment estimate for the dashboard, financed over the
+# out-of-pocket amount (after trade-in). Real rate/term depend on credit
+# and the lender - this is a planning number, like the OTD estimate.
+FINANCE_APR = 0.07
+FINANCE_TERM_MONTHS = 60
+
 
 def oop_cap_for_trim(trim: str | None, upgraded: bool = False) -> int:
     """Out-of-pocket ceiling for a given trim, with extra room if the

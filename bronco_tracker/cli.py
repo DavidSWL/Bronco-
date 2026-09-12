@@ -24,6 +24,7 @@ def cmd_add(args: argparse.Namespace) -> None:
         "doors": args.doors,
         "color_exterior": args.color,
         "price": args.price,
+        "msrp": args.msrp,
         "stock_number": args.stock,
         "url": args.url,
         "has_fog_lights": args.fog_lights,
@@ -57,6 +58,7 @@ def main() -> None:
     p_add.add_argument("--doors", type=int)
     p_add.add_argument("--color")
     p_add.add_argument("--price", type=int)
+    p_add.add_argument("--msrp", type=int, help="Sticker/MSRP, if different from --price (shows as savings)")
     p_add.add_argument("--stock")
     p_add.add_argument("--url")
     p_add.add_argument("--fog-lights", dest="fog_lights", action=argparse.BooleanOptionalAction, default=None)

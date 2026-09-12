@@ -20,6 +20,16 @@ def is_upgraded(record: dict[str, Any]) -> bool:
     return bool(record.get("has_fog_lights")) and bool(record.get("has_360_camera"))
 
 
+def monthly_payment(principal: float, apr: float = config.FINANCE_APR, term_months: int = config.FINANCE_TERM_MONTHS) -> int:
+    """Standard loan amortization payment. Planning estimate only."""
+    principal = max(principal, 0)
+    rate = apr / 12
+    if rate == 0:
+        return round(principal / term_months)
+    factor = (1 + rate) ** term_months
+    return round(principal * rate * factor / (factor - 1))
+
+
 def estimate_out_of_pocket(price: int | None, trim: str | None, trade_in_value: float, upgraded: bool = False) -> dict[str, Any]:
     price = price or 0
     tax = round(price * config.SALES_TAX_RATE)
@@ -39,6 +49,7 @@ def estimate_out_of_pocket(price: int | None, trim: str | None, trade_in_value: 
         "within_budget": out_of_pocket <= cap,
         "over_by": max(out_of_pocket - cap, 0),
         "upgraded": upgraded,
+        "est_monthly_payment": monthly_payment(out_of_pocket),
     }
 
 

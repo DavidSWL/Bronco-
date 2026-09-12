@@ -603,15 +603,23 @@ def build_artifact_html() -> str:
   .heart-btn.liked { color: var(--heart); }
   .deal-title { font-weight: 600; }
   .deal-sub { font-size: 0.8rem; margin-top: 2px; }
-  .deal-figures { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-  .deal-price { font-weight: 600; font-size: 1.05rem; }
-  .deal-vs { color: var(--muted); }
-  .delta.down { color: var(--good); font-family: var(--font-mono); font-size: 0.82rem; }
+  .price-block { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+  .price-was { color: var(--muted); text-decoration: line-through; font-size: 0.8rem; }
+  .price-now { font-weight: 700; font-size: 1.15rem; }
+  .savings-chip { margin-top: 3px; }
   .caret { color: var(--muted); transition: transform 0.15s; font-size: 0.9rem; }
   details.deal-row[open] .caret { transform: rotate(90deg); }
   .deal-detail { padding: 0 16px 16px; border-top: 1px solid var(--border); margin-top: 2px; }
-  .deal-detail .deal-link { margin-top: 10px; display: block; }
-  .deal-detail .deal-link a { color: var(--accent); font-size: 0.82rem; font-weight: 500; }
+  .finance-line {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.92rem;
+    font-weight: 600; margin-top: 12px;
+  }
+  .view-btn {
+    display: block; text-align: center; margin: 10px 0; padding: 10px 16px;
+    background: var(--accent); color: #fff; border-radius: 10px; font-weight: 600;
+    font-size: 0.88rem; text-decoration: none;
+  }
+  .view-btn-disabled { background: var(--surface-2); color: var(--muted); cursor: default; }
   .history-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 10px; }
   .history-table th, .history-table td { text-align: left; padding: 4px 8px 4px 0; color: var(--muted); }
   .history-table td:last-child, .history-table th:last-child { text-align: right; color: var(--text); }
@@ -856,10 +864,9 @@ def build_artifact_html() -> str:
   function renderDeal(d) {
     var s = dealState(d);
     var b = d.budget || {};
-    var drop = d.price_drop > 0
-      ? '<span class="delta down">&minus;' + esc(money(d.price_drop)) + '</span>'
-      : '<span class="muted small">&mdash;</span>';
-    var link = d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">listing &rarr;</a>' : '';
+    var link = d.url
+      ? '<a class="view-btn" href="' + esc(d.url) + '" target="_blank" rel="noopener">View listing &rarr;</a>'
+      : '<span class="view-btn view-btn-disabled">No link saved</span>';
     var emailId = 'email-body-' + esc(d.id);
     var emailBlock = (d.email && d.email.body)
       ? '<div class="email-block">' +
@@ -876,26 +883,50 @@ def build_artifact_html() -> str:
     var heartBtn = '<button type="button" class="heart-btn' + (liked ? ' liked' : '') + '" data-heart-id="' +
       esc(d.id) + '" aria-label="' + (liked ? 'Remove from favorites' : 'Add to favorites') + '">' +
       (liked ? '&#9829;' : '&#9825;') + '</button>';
+
+    // Price block: MSRP strikethrough (if known) or peer-average strikethrough,
+    // current price bold, and a savings/drop badge - mirrors how CarGurus etc.
+    // show "was/now" pricing.
+    var wasPrice = null, savingsLabel = '';
+    if (d.msrp && d.msrp > d.price) {
+      wasPrice = d.msrp;
+      savingsLabel = 'below MSRP';
+    } else if (d.price_drop > 0) {
+      wasPrice = d.price + d.price_drop;
+      savingsLabel = 'price drop';
+    }
+    var savingsAmt = wasPrice ? (wasPrice - d.price) : 0;
+    var priceBlock = '<div class="price-block">' +
+      (wasPrice ? '<span class="price-was num">' + esc(money(wasPrice)) + '</span>' : '') +
+      '<span class="price-now num">' + esc(money(d.price)) + '</span>' +
+      '</div>' +
+      (savingsAmt > 0
+        ? '<span class="chip chip-good savings-chip">&minus;' + esc(money(savingsAmt)) + ' ' + savingsLabel + '</span>'
+        : '');
+
     return '<details class="deal-row state-' + s + '">' +
       '<summary>' +
         '<div>' +
-          '<div class="deal-title">' + esc(d.trim) + ' &middot; ' + esc(d.color_exterior) + ' ' + stateChip(s) +
+          '<div class="deal-title">' + esc(d.trim) + ' 4-Door 4WD ' + stateChip(s) +
             (b.upgraded ? ' <span class="chip chip-status">upgraded</span>' : '') + '</div>' +
-          '<div class="deal-sub muted">' + esc(d.dealer) + ' &mdash; ' + esc(d.days_on_market) + ' days on lot</div>' +
+          '<div class="deal-sub muted">' + esc(d.color_exterior || 'color n/a') + ' &middot; ' + esc(d.location || d.dealer) +
+            ' &mdash; ' + esc(d.days_on_market) + ' days on lot</div>' +
         '</div>' +
-        '<div class="deal-figures">' +
-          budgetChip(b) +
-          '<span class="deal-price num">' + esc(money(b.out_of_pocket)) + ' cash/finance</span>' +
-          '<span class="deal-vs num small">sticker ' + esc(money(d.price)) + ' &middot; ' + esc(d.pct_below_peer_avg) + '% vs peers</span>' +
-          drop +
-        '</div>' +
+        priceBlock +
         heartBtn +
         '<span class="caret">&#9656;</span>' +
       '</summary>' +
       '<div class="deal-detail">' +
+        '<div class="finance-line">' +
+          '<span class="num">' + esc(money(b.est_monthly_payment)) + '/mo est.</span>' +
+          '<span class="muted">&middot;</span>' +
+          '<span class="num">' + esc(money(b.out_of_pocket)) + ' cash/finance</span>' +
+          budgetChip(b) +
+        '</div>' +
+        '<p class="muted small">' + esc(d.dealer) + ' &middot; ' + esc(d.pct_below_peer_avg) + '% vs peer avg' + '</p>' +
+        link +
         sparkline(d.price_history) +
         historyTable(d.price_history) +
-        '<div class="deal-link">' + link + '</div>' +
         emailBlock +
       '</div>' +
     '</details>';

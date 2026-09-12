@@ -17,6 +17,24 @@
     "trim": "Big Bend",
     "url": "https://www.capitalone.com/cars/vehicle-details/2026/Ford/Bronco/Big+Bend/1FMDE7BH9TLA55544"
   },
+  "cargurus-tustin-bigbend": {
+    "dealer": "Unknown dealer (via CarGurus)",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "cargurus-tustin-bigbend",
+    "last_seen": "2026-09-12",
+    "location": "Tustin, CA",
+    "msrp": 50600,
+    "price": 47685,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 47685
+      }
+    ],
+    "status": "active",
+    "trim": "Big Bend"
+  },
   "citrusford-26t473": {
     "color_exterior": "Desert Sand",
     "dealer": "Citrus Motors Ford",
