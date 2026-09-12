@@ -100,6 +100,21 @@ Big Bend 4 Door in Buena Park #FB261461 | Dealer Name"). This is
 best-effort — it will miss listings that don't surface well in search, so
 keep feeding it anything you personally come across.
 
+## The live dashboard
+
+The Artifact version (`data/report_artifact.html`) is interactive beyond the
+static reports:
+
+- **Favorite listings** — tap the heart on any listing (including in
+  Upgraded picks) to save it; the "Favorites" chip filters to just those.
+  Saved via the artifact's `db` capability, so it persists across visits
+  and devices.
+- **Search for new leads** — the button next to "Listings" writes a
+  refresh request that an hourly Routine checks and fulfills (searches,
+  updates the tracker, and marks the request done) — usually within the
+  hour, not instantly. If the page shows the button as unavailable, ask
+  Claude directly in chat to run a sweep instead.
+
 ## Running tests
 
 ```bash

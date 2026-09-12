@@ -402,7 +402,6 @@ def build_artifact_html() -> str:
     """
     data = _gather()
     ranked, sold, trends, ti = data["ranked"], data["sold"], data["trends"], data["ti"]
-    upgraded_picks = data["upgraded_picks"]
 
     if trends["count"] == 0:
         market_html = "<p class='muted'>No active listings tracked yet.</p>"
@@ -446,38 +445,6 @@ def build_artifact_html() -> str:
         f"<button type=\"button\" class=\"chipbtn\" data-trim=\"{_e(t)}\">{_e(t)}</button>" for t in trims_available
     )
 
-    if not upgraded_picks:
-        upgraded_html = (
-            "<p class='muted'>None found yet &mdash; the daily sweep is watching for Broncos with the "
-            f"Lux Package (360&deg; camera) and fog lights, up to {_fmt_money(config.UPGRADED_OOP_ALLOWANCE)} "
-            "past your normal budget.</p>"
-        )
-    else:
-        up_items = []
-        for r in upgraded_picks:
-            b = r["budget"]
-            budget_chip = (
-                "<span class='chip chip-good'>in budget</span>" if b["within_budget"]
-                else f"<span class='chip chip-over'>+{_fmt_money(b['over_by'])}</span>"
-            )
-            url = _e(r.get("url", "")) if r.get("url") else ""
-            link = f"<a href='{url}' target='_blank' rel='noopener'>listing &rarr;</a>" if url else ""
-            up_items.append(f"""
-            <div class="deal-row state-neutral" style="padding:12px 16px">
-              <div style="display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:center">
-                <div>
-                  <div class="deal-title">{_e(r.get('trim'))} &middot; {_e(r.get('color_exterior'))} {budget_chip}</div>
-                  <div class="deal-sub muted">{_e(r.get('dealer'))} &mdash; {r['days_on_market']} days on lot</div>
-                </div>
-                <div class="deal-figures">
-                  <span class="deal-price num">{_fmt_money(b['out_of_pocket'])} cash/finance</span>
-                  <span class="deal-vs num small">sticker {_fmt_money(r.get('price'))}</span>
-                </div>
-              </div>
-              {f'<div class="deal-link" style="margin-top:8px">{link}</div>' if link else ''}
-            </div>""")
-        upgraded_html = f"<div class='deal-list'>{''.join(up_items)}</div>"
-
     deals_json = _json_for_script(ranked)
     sold_json = _json_for_script(sold)
 
@@ -492,6 +459,7 @@ def build_artifact_html() -> str:
     --accent: #cc531a; --accent-soft: #fbe6d6; --accent-ink: #7a3410;
     --good: #2f7d4f; --good-soft: #e2f2e6;
     --watch: #a3721b; --watch-soft: #f7ecd2;
+    --heart: #c53a5a;
     --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
     --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
@@ -503,6 +471,7 @@ def build_artifact_html() -> str:
       --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
       --good: #63c088; --good-soft: #1e3324;
       --watch: #e3b552; --watch-soft: #3a2f14;
+      --heart: #ff6b85;
     }
   }
   :root[data-theme="dark"] {
@@ -511,6 +480,7 @@ def build_artifact_html() -> str:
     --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
     --good: #63c088; --good-soft: #1e3324;
     --watch: #e3b552; --watch-soft: #3a2f14;
+    --heart: #ff6b85;
   }
   * { box-sizing: border-box; }
   body {
@@ -574,10 +544,19 @@ def build_artifact_html() -> str:
 
   .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .section-head .sub { margin-bottom: 0; }
+  .section-actions { display: flex; align-items: center; gap: 10px; }
   .count-pill {
     font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
     background: var(--surface-2); border-radius: 999px; padding: 2px 10px;
   }
+  .refresh-btn {
+    font-family: var(--font-body); font-size: 0.78rem; font-weight: 500; color: var(--accent);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 12px; cursor: pointer;
+  }
+  .refresh-btn:hover:not(:disabled) { border-color: var(--accent); }
+  .refresh-btn:disabled { opacity: 0.55; cursor: default; }
+  .refresh-status { margin: 8px 0 0; }
 
   .controls { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 16px; }
   .controls-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -611,9 +590,14 @@ def build_artifact_html() -> str:
   details.deal-row.state-watch { border-left-color: var(--watch); }
   .deal-row summary {
     list-style: none; cursor: pointer; padding: 12px 16px;
-    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 4px 16px;
+    display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 4px 16px;
   }
   .deal-row summary::-webkit-details-marker { display: none; }
+  .heart-btn {
+    background: none; border: none; cursor: pointer; font-size: 1.2rem; line-height: 1;
+    padding: 2px; color: var(--muted);
+  }
+  .heart-btn.liked { color: var(--heart); }
   .deal-title { font-weight: 600; }
   .deal-sub { font-size: 0.8rem; margin-top: 2px; }
   .deal-figures { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
@@ -724,14 +708,19 @@ def build_artifact_html() -> str:
 
   <section>
     <h2 class="sub">Upgraded picks &middot; fog lights + 360&deg; camera</h2>
-    __UPGRADED_HTML__
+    <div class="deal-list" id="upgradedList"></div>
+    <p class="muted small" id="upgradedEmpty" hidden>None found yet &mdash; the daily sweep is watching for Broncos with the Lux Package (360&deg; camera) and fog lights, up to __UPGRADED_ALLOWANCE_FMT__ past your normal budget.</p>
   </section>
 
   <section>
     <div class="section-head">
       <h2 class="sub">Listings</h2>
-      <span class="count-pill"><span id="dealCount">0</span> shown</span>
+      <div class="section-actions">
+        <button type="button" class="refresh-btn" id="refreshBtn" title="Ask the tracker to search for new leads">&#8635; Search for new leads</button>
+        <span class="count-pill"><span id="dealCount">0</span> shown</span>
+      </div>
     </div>
+    <p class="refresh-status muted small" id="refreshStatus" hidden></p>
 
     <div class="controls">
       <div class="controls-row">
@@ -745,7 +734,10 @@ def build_artifact_html() -> str:
           <option value="drop">Biggest price drop</option>
         </select>
       </div>
-      <div class="controls-row" id="trimChips">__TRIM_CHIP_BUTTONS__</div>
+      <div class="controls-row" id="trimChips">
+        <button type="button" class="chipbtn" id="favFilterBtn">&#9829; Favorites</button>
+        __TRIM_CHIP_BUTTONS__
+      </div>
     </div>
 
     <div class="deal-list" id="dealList"></div>
@@ -774,7 +766,9 @@ def build_artifact_html() -> str:
 (function () {
   var deals = JSON.parse(document.getElementById('dealData').textContent);
   var sold = JSON.parse(document.getElementById('soldData').textContent);
-  var state = { query: '', trims: new Set(), sort: 'price_asc' };
+  var state = { query: '', trims: new Set(), sort: 'price_asc', onlyFavorites: false };
+  var dbHandle = null;
+  var likedIds = new Set();
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function esc(s) {
@@ -875,6 +869,10 @@ def build_artifact_html() -> str:
           '</div>' +
         '</div>'
       : '';
+    var liked = likedIds.has(d.id);
+    var heartBtn = '<button type="button" class="heart-btn' + (liked ? ' liked' : '') + '" data-heart-id="' +
+      esc(d.id) + '" aria-label="' + (liked ? 'Remove from favorites' : 'Add to favorites') + '">' +
+      (liked ? '&#9829;' : '&#9825;') + '</button>';
     return '<details class="deal-row state-' + s + '">' +
       '<summary>' +
         '<div>' +
@@ -888,6 +886,7 @@ def build_artifact_html() -> str:
           '<span class="deal-vs num small">sticker ' + esc(money(d.price)) + ' &middot; ' + esc(d.pct_below_peer_avg) + '% vs peers</span>' +
           drop +
         '</div>' +
+        heartBtn +
         '<span class="caret">&#9656;</span>' +
       '</summary>' +
       '<div class="deal-detail">' +
@@ -902,6 +901,7 @@ def build_artifact_html() -> str:
   function applyFilters() {
     var q = state.query.toLowerCase();
     var rows = deals.filter(function (d) {
+      if (state.onlyFavorites && !likedIds.has(d.id)) return false;
       if (state.trims.size && !state.trims.has(d.trim)) return false;
       if (q) {
         var hay = [d.trim, d.color_exterior, d.dealer, d.location].join(' ').toLowerCase();
@@ -929,6 +929,81 @@ def build_artifact_html() -> str:
       : "<p class='muted'>No listings match these filters.</p>";
   }
 
+  function renderUpgraded() {
+    var rows = deals.filter(function (d) { return d.budget && d.budget.upgraded; });
+    document.getElementById('upgradedList').innerHTML = rows.map(renderDeal).join('');
+    document.getElementById('upgradedEmpty').hidden = rows.length > 0;
+  }
+
+  function toggleHeart(id) {
+    if (!dbHandle) return;
+    var wasLiked = likedIds.has(id);
+    if (wasLiked) likedIds.delete(id); else likedIds.add(id);
+    render();
+    renderUpgraded();
+    var ref = dbHandle.doc('hearts/' + id);
+    var write = wasLiked ? ref.delete() : ref.set({ liked: true });
+    write.catch(function () {
+      if (wasLiked) likedIds.add(id); else likedIds.delete(id);
+      render();
+      renderUpgraded();
+    });
+  }
+
+  function updateRefreshUI(data) {
+    var btn = document.getElementById('refreshBtn');
+    var status = document.getElementById('refreshStatus');
+    if (!data) { status.hidden = true; btn.disabled = false; return; }
+    status.hidden = false;
+    if (data.fulfilled) {
+      status.textContent = 'Last refreshed ' + new Date(data.fulfilled_at).toLocaleString();
+      btn.disabled = false;
+    } else {
+      status.textContent = 'Refresh requested — checked within the hour.';
+      btn.disabled = true;
+    }
+  }
+
+  function useDb() {
+    if (window.claude && typeof window.claude.use === 'function') {
+      return window.claude.use('db').catch(function () { return null; });
+    }
+    return Promise.resolve(null);
+  }
+
+  useDb().then(function (db) {
+    dbHandle = db;
+    if (!db) return;
+    db.collection('hearts').get().then(function (snap) {
+      snap.docs.forEach(function (doc) {
+        var data = doc.data();
+        if (data && data.liked) likedIds.add(doc.id);
+      });
+      render();
+      renderUpgraded();
+    }).catch(function () {});
+    db.doc('requests/manual-refresh').get().then(function (snap) {
+      updateRefreshUI(snap.exists ? snap.data() : null);
+    }).catch(function () {});
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', function () {
+    var status = document.getElementById('refreshStatus');
+    if (!dbHandle) {
+      status.hidden = false;
+      status.textContent = 'Not available in this preview — ask Claude in chat to run a sweep instead.';
+      return;
+    }
+    var now = new Date().toISOString();
+    this.disabled = true;
+    dbHandle.doc('requests/manual-refresh').set({ requested_at: now, fulfilled: false }).then(function () {
+      updateRefreshUI({ requested_at: now, fulfilled: false });
+    }).catch(function () {
+      status.hidden = false;
+      status.textContent = 'Could not send the request — try again in a moment.';
+    });
+  });
+
   document.getElementById('dealSearch').addEventListener('input', function (e) {
     state.query = e.target.value;
     render();
@@ -938,7 +1013,14 @@ def build_artifact_html() -> str:
     render();
   });
   document.getElementById('trimChips').addEventListener('click', function (e) {
-    var btn = e.target.closest('.chipbtn');
+    var favBtn = e.target.closest('#favFilterBtn');
+    if (favBtn) {
+      state.onlyFavorites = !state.onlyFavorites;
+      favBtn.classList.toggle('active', state.onlyFavorites);
+      render();
+      return;
+    }
+    var btn = e.target.closest('.chipbtn[data-trim]');
     if (!btn) return;
     var trim = btn.dataset.trim;
     if (state.trims.has(trim)) { state.trims.delete(trim); btn.classList.remove('active'); }
@@ -961,7 +1043,14 @@ def build_artifact_html() -> str:
     soldList.hidden = false;
   });
 
-  document.getElementById('dealList').addEventListener('click', function (e) {
+  document.addEventListener('click', function (e) {
+    var heartBtn = e.target.closest('.heart-btn');
+    if (heartBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleHeart(heartBtn.dataset.heartId);
+      return;
+    }
     var btn = e.target.closest('.copy-btn');
     if (!btn) return;
     var textarea = document.getElementById(btn.dataset.copyTarget);
@@ -987,6 +1076,7 @@ def build_artifact_html() -> str:
   });
 
   render();
+  renderUpgraded();
 })();
 </script>
 """
@@ -1003,7 +1093,7 @@ def build_artifact_html() -> str:
         "__TI_DRIFT_SIGN__": "&minus;" if ti["estimated_drift"] < 0 else "+",
         "__TI_DRIFT_ABS_FMT__": _fmt_money(abs(ti["estimated_drift"])),
         "__MARKET_HTML__": market_html,
-        "__UPGRADED_HTML__": upgraded_html,
+        "__UPGRADED_ALLOWANCE_FMT__": _fmt_money(config.UPGRADED_OOP_ALLOWANCE),
         "__TRIM_CHIP_BUTTONS__": trim_chip_buttons,
         "__SOLD_COUNT__": str(len(sold)),
         "__DEALS_JSON__": deals_json,
