@@ -1,0 +1,183 @@
+<title>Bronco Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --bg: #eef0e6; --surface: #ffffff; --surface-2: #f6f7f0;
+    --text: #20241c; --muted: #6d7161; --border: #dadcc9;
+    --accent: #cc531a; --accent-soft: #fbe6d6; --accent-ink: #7a3410;
+    --good: #2f7d4f; --good-soft: #e2f2e6;
+    --watch: #a3721b; --watch-soft: #f7ecd2;
+    --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14170f; --surface: #1c2016; --surface-2: #20241a;
+      --text: #edf0e4; --muted: #98a086; --border: #343925;
+      --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
+      --good: #63c088; --good-soft: #1e3324;
+      --watch: #e3b552; --watch-soft: #3a2f14;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14170f; --surface: #1c2016; --surface-2: #20241a;
+    --text: #edf0e4; --muted: #98a086; --border: #343925;
+    --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
+    --good: #63c088; --good-soft: #1e3324;
+    --watch: #e3b552; --watch-soft: #3a2f14;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font-body); line-height: 1.5;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 18px 56px; }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .muted { color: var(--muted); }
+  .small { font-size: 0.8rem; }
+  .eyebrow {
+    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em;
+    font-size: 0.72rem; color: var(--muted); margin: 0 0 6px;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 8vw, 2.8rem);
+    letter-spacing: 0.01em; margin: 0 0 4px; text-wrap: balance;
+  }
+  h2.sub, h3.sub {
+    font-family: var(--font-display); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 1rem; color: var(--muted); margin: 0 0 12px;
+  }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 22px; }
+
+  .gauge-strip {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px; margin-bottom: 22px;
+  }
+  .gauge {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .gauge .eyebrow { margin-bottom: 8px; }
+  .gauge-value {
+    font-family: var(--font-display); font-weight: 800; font-size: 2.1rem;
+    color: var(--accent-ink, var(--text)); line-height: 1;
+  }
+  .gauge-value.hero { color: var(--accent); }
+  .gauge-note { margin-top: 6px; font-size: 0.78rem; color: var(--muted); }
+
+  section { margin-bottom: 24px; }
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 18px 20px;
+  }
+
+  .tile-grid { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 14px; }
+  .tile { display: flex; flex-direction: column; min-width: 120px; }
+  .tile-value { font-size: 1.35rem; font-weight: 600; }
+  .tile-label { color: var(--muted); font-size: 0.76rem; margin-top: 2px; }
+
+  .range-line { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; margin: 10px 0 4px; }
+  .range-track { flex: 1; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+  .range-fill { display: block; height: 100%; width: 100%; background: var(--accent); opacity: 0.55; }
+
+  .trim-list { border-top: 1px solid var(--border); }
+  .trim-row {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid var(--border); font-size: 0.88rem;
+  }
+
+  .deal-list { display: flex; flex-direction: column; gap: 10px; }
+  .deal-row {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px;
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+  }
+  .deal-row.state-good { border-left-color: var(--good); }
+  .deal-row.state-watch { border-left-color: var(--watch); }
+  .deal-title { font-weight: 600; }
+  .deal-sub { font-size: 0.8rem; margin-top: 2px; }
+  .deal-figures { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .deal-price { font-weight: 600; font-size: 1.05rem; }
+  .deal-vs { color: var(--muted); }
+  .delta.down { color: var(--good); font-family: var(--font-mono); font-size: 0.82rem; }
+  .deal-link { grid-column: 1 / -1; }
+  .deal-link a { color: var(--accent); text-decoration: none; font-size: 0.82rem; font-weight: 500; }
+  .deal-link a:hover { text-decoration: underline; }
+
+  .chip {
+    display: inline-block; font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px; vertical-align: middle;
+  }
+  .chip-good { background: var(--good-soft); color: var(--good); }
+  .chip-watch { background: var(--watch-soft); color: var(--watch); }
+
+  footer.note { color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+<div class="wrap">
+  <p class="eyebrow">92706 &middot; OC / LA / IE &middot; new 4-door hardtop</p>
+  <h1>Bronco Watch</h1>
+  <p class="meta">Last swept 2026-09-12</p>
+
+  <div class="gauge-strip">
+    <div class="gauge">
+      <p class="eyebrow">Until target buy date</p>
+      <div class="gauge-value hero num">110</div>
+      <p class="gauge-note">days &middot; Dec 31, 2026</p>
+    </div>
+    <div class="gauge">
+      <p class="eyebrow">Trade-in, paid off</p>
+      <div class="gauge-value num">$21,000</div>
+      <p class="gauge-note">today &middot; baseline $21,000</p>
+    </div>
+    <div class="gauge">
+      <p class="eyebrow">Projected at target date</p>
+      <div class="gauge-value num">$20,099</div>
+      <p class="gauge-note">&minus;$901 est. drift</p>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="sub">Market snapshot</h2>
+    <div class="panel">
+        <div class="tile-grid">
+          <div class="tile"><span class="tile-value num">1</span><span class="tile-label">active listings</span></div>
+          <div class="tile"><span class="tile-value num">$44,169</span><span class="tile-label">avg price</span></div>
+          <div class="tile"><span class="tile-value num">0</span><span class="tile-label">avg days on lot</span></div>
+          <div class="tile"><span class="tile-value num">0</span><span class="tile-label">stale (21+ days)</span></div>
+        </div>
+        <div class="range-line">
+          <span class="num">$44,169</span>
+          <span class="range-track"><span class="range-fill"></span></span>
+          <span class="num">$44,169</span>
+        </div>
+        <p class="muted small">0 sold/removed since tracking began.</p>
+        <h3 class="sub">Average price by trim</h3>
+        <div class="trim-list"><div class='trim-row'><span>Big Bend</span><span class='num'>$44,169</span></div></div>
+        </div>
+  </section>
+
+  <section>
+    <h2 class="sub">Ranked deals</h2>
+    <div class='deal-list'>
+            <div class="deal-row state-neutral">
+              <div class="deal-main">
+                <div class="deal-title">Big Bend &middot; Marsh Gray </div>
+                <div class="deal-sub muted">Ken Grody Ford Orange County &mdash; 0 days on lot</div>
+              </div>
+              <div class="deal-figures">
+                <span class="deal-price num">$44,169</span>
+                <span class="deal-vs num small">0.0% vs peers</span>
+                <span class='muted'>&mdash;</span>
+              </div>
+              <div class="deal-link"><a href='https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/' target='_blank' rel='noopener'>listing &rarr;</a></div>
+            </div></div>
+    <footer class="note">Green = priced below peers or already cut. Amber = 21+ days on lot, worth a call. Ranked by a blend of price-vs-peers, days on lot, and observed price cuts.</footer>
+  </section>
+
+  <footer class="note">Trade-in figures are a planning estimate (compounding monthly depreciation), not an appraisal.</footer>
+</div>

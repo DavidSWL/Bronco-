@@ -253,10 +253,238 @@ def build_html_report() -> str:
 """
 
 
+def _deal_state(r: dict[str, Any]) -> tuple[str, str]:
+    """Classify a ranked listing for the stripe/chip treatment: (state, label)."""
+    if r["is_stale"]:
+        return "watch", "watch"
+    if r["pct_below_peer_avg"] >= 5 or r["price_drop"] > 0:
+        return "good", "deal"
+    return "neutral", ""
+
+
+def build_artifact_html() -> str:
+    """Build the artifact-ready fragment: <title> + <style> + body content,
+    no <!doctype>/<html>/<head>/<body> - the Artifact host wraps those.
+    """
+    data = _gather()
+    ranked, trends, ti = data["ranked"], data["trends"], data["ti"]
+
+    if trends["count"] == 0:
+        market_html = "<p class='muted'>No active listings tracked yet.</p>"
+    else:
+        trim_chips = "".join(
+            f"<div class='trim-row'><span>{_e(trim)}</span><span class='num'>{_fmt_money(avg)}</span></div>"
+            for trim, avg in sorted(trends["avg_price_by_trim"].items(), key=lambda kv: kv[1])
+        )
+        market_html = f"""
+        <div class="tile-grid">
+          <div class="tile"><span class="tile-value num">{trends['count']}</span><span class="tile-label">active listings</span></div>
+          <div class="tile"><span class="tile-value num">{_fmt_money(trends['avg_price'])}</span><span class="tile-label">avg price</span></div>
+          <div class="tile"><span class="tile-value num">{trends['avg_days_on_market']}</span><span class="tile-label">avg days on lot</span></div>
+          <div class="tile"><span class="tile-value num">{trends['stale_count']}</span><span class="tile-label">stale (21+ days)</span></div>
+        </div>
+        <div class="range-line">
+          <span class="num">{_fmt_money(trends['min_price'])}</span>
+          <span class="range-track"><span class="range-fill"></span></span>
+          <span class="num">{_fmt_money(trends['max_price'])}</span>
+        </div>
+        <p class="muted small">{trends['sold_or_removed_count']} sold/removed since tracking began.</p>
+        <h3 class="sub">Average price by trim</h3>
+        <div class="trim-list">{trim_chips}</div>
+        """
+
+    if not ranked:
+        deals_html = "<p class='muted'>Nothing tracked yet &mdash; listings land here as the daily sweep finds them.</p>"
+    else:
+        rows = []
+        for r in ranked:
+            state, label = _deal_state(r)
+            chip = f"<span class='chip chip-{state}'>{label}</span>" if label else ""
+            drop = f"<span class='delta down'>&minus;{_fmt_money(r['price_drop'])}</span>" if r["price_drop"] > 0 else "<span class='muted'>&mdash;</span>"
+            url = _e(r.get("url", "")) if r.get("url") else ""
+            link = f"<a href='{url}' target='_blank' rel='noopener'>listing &rarr;</a>" if url else ""
+            rows.append(f"""
+            <div class="deal-row state-{state}">
+              <div class="deal-main">
+                <div class="deal-title">{_e(r.get('trim'))} &middot; {_e(r.get('color_exterior'))} {chip}</div>
+                <div class="deal-sub muted">{_e(r.get('dealer'))} &mdash; {r['days_on_market']} days on lot</div>
+              </div>
+              <div class="deal-figures">
+                <span class="deal-price num">{_fmt_money(r.get('price'))}</span>
+                <span class="deal-vs num small">{r['pct_below_peer_avg']}% vs peers</span>
+                {drop}
+              </div>
+              <div class="deal-link">{link}</div>
+            </div>""")
+        deals_html = f"<div class='deal-list'>{''.join(rows)}</div>"
+
+    drift_sign = "&minus;" if ti["estimated_drift"] < 0 else "+"
+
+    return f"""<title>Bronco Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root {{
+    --bg: #eef0e6; --surface: #ffffff; --surface-2: #f6f7f0;
+    --text: #20241c; --muted: #6d7161; --border: #dadcc9;
+    --accent: #cc531a; --accent-soft: #fbe6d6; --accent-ink: #7a3410;
+    --good: #2f7d4f; --good-soft: #e2f2e6;
+    --watch: #a3721b; --watch-soft: #f7ecd2;
+    --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  }}
+  @media (prefers-color-scheme: dark) {{
+    :root:not([data-theme="light"]) {{
+      --bg: #14170f; --surface: #1c2016; --surface-2: #20241a;
+      --text: #edf0e4; --muted: #98a086; --border: #343925;
+      --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
+      --good: #63c088; --good-soft: #1e3324;
+      --watch: #e3b552; --watch-soft: #3a2f14;
+    }}
+  }}
+  :root[data-theme="dark"] {{
+    --bg: #14170f; --surface: #1c2016; --surface-2: #20241a;
+    --text: #edf0e4; --muted: #98a086; --border: #343925;
+    --accent: #ff8a4a; --accent-soft: #3c2415; --accent-ink: #ffcaa3;
+    --good: #63c088; --good-soft: #1e3324;
+    --watch: #e3b552; --watch-soft: #3a2f14;
+  }}
+  * {{ box-sizing: border-box; }}
+  body {{
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font-body); line-height: 1.5;
+  }}
+  .wrap {{ max-width: 780px; margin: 0 auto; padding: 28px 18px 56px; }}
+  .num {{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; }}
+  .muted {{ color: var(--muted); }}
+  .small {{ font-size: 0.8rem; }}
+  .eyebrow {{
+    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em;
+    font-size: 0.72rem; color: var(--muted); margin: 0 0 6px;
+  }}
+  h1 {{
+    font-family: var(--font-display); font-weight: 800; font-size: clamp(2.1rem, 8vw, 2.8rem);
+    letter-spacing: 0.01em; margin: 0 0 4px; text-wrap: balance;
+  }}
+  h2.sub, h3.sub {{
+    font-family: var(--font-display); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 1rem; color: var(--muted); margin: 0 0 12px;
+  }}
+  .meta {{ color: var(--muted); font-size: 0.85rem; margin-bottom: 22px; }}
+
+  .gauge-strip {{
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px; margin-bottom: 22px;
+  }}
+  .gauge {{
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 16px 18px;
+  }}
+  .gauge .eyebrow {{ margin-bottom: 8px; }}
+  .gauge-value {{
+    font-family: var(--font-display); font-weight: 800; font-size: 2.1rem;
+    color: var(--accent-ink, var(--text)); line-height: 1;
+  }}
+  .gauge-value.hero {{ color: var(--accent); }}
+  .gauge-note {{ margin-top: 6px; font-size: 0.78rem; color: var(--muted); }}
+
+  section {{ margin-bottom: 24px; }}
+  .panel {{
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 18px 20px;
+  }}
+
+  .tile-grid {{ display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 14px; }}
+  .tile {{ display: flex; flex-direction: column; min-width: 120px; }}
+  .tile-value {{ font-size: 1.35rem; font-weight: 600; }}
+  .tile-label {{ color: var(--muted); font-size: 0.76rem; margin-top: 2px; }}
+
+  .range-line {{ display: flex; align-items: center; gap: 10px; font-size: 0.85rem; margin: 10px 0 4px; }}
+  .range-track {{ flex: 1; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }}
+  .range-fill {{ display: block; height: 100%; width: 100%; background: var(--accent); opacity: 0.55; }}
+
+  .trim-list {{ border-top: 1px solid var(--border); }}
+  .trim-row {{
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid var(--border); font-size: 0.88rem;
+  }}
+
+  .deal-list {{ display: flex; flex-direction: column; gap: 10px; }}
+  .deal-row {{
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px;
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+  }}
+  .deal-row.state-good {{ border-left-color: var(--good); }}
+  .deal-row.state-watch {{ border-left-color: var(--watch); }}
+  .deal-title {{ font-weight: 600; }}
+  .deal-sub {{ font-size: 0.8rem; margin-top: 2px; }}
+  .deal-figures {{ display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }}
+  .deal-price {{ font-weight: 600; font-size: 1.05rem; }}
+  .deal-vs {{ color: var(--muted); }}
+  .delta.down {{ color: var(--good); font-family: var(--font-mono); font-size: 0.82rem; }}
+  .deal-link {{ grid-column: 1 / -1; }}
+  .deal-link a {{ color: var(--accent); text-decoration: none; font-size: 0.82rem; font-weight: 500; }}
+  .deal-link a:hover {{ text-decoration: underline; }}
+
+  .chip {{
+    display: inline-block; font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px; vertical-align: middle;
+  }}
+  .chip-good {{ background: var(--good-soft); color: var(--good); }}
+  .chip-watch {{ background: var(--watch-soft); color: var(--watch); }}
+
+  footer.note {{ color: var(--muted); font-size: 0.78rem; margin-top: 10px; }}
+  a {{ color: var(--accent); }}
+  a:focus-visible, button:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 2px; }}
+</style>
+<div class="wrap">
+  <p class="eyebrow">92706 &middot; OC / LA / IE &middot; new 4-door hardtop</p>
+  <h1>Bronco Watch</h1>
+  <p class="meta">Last swept {data['today']}</p>
+
+  <div class="gauge-strip">
+    <div class="gauge">
+      <p class="eyebrow">Until target buy date</p>
+      <div class="gauge-value hero num">{data['days_left']}</div>
+      <p class="gauge-note">days &middot; {config.TARGET_BUY_DATE.strftime('%b %-d, %Y')}</p>
+    </div>
+    <div class="gauge">
+      <p class="eyebrow">Trade-in, paid off</p>
+      <div class="gauge-value num">{_fmt_money(ti['as_of_today'])}</div>
+      <p class="gauge-note">today &middot; baseline {_fmt_money(ti['baseline_value'])}</p>
+    </div>
+    <div class="gauge">
+      <p class="eyebrow">Projected at target date</p>
+      <div class="gauge-value num">{_fmt_money(ti['projected_at_target'])}</div>
+      <p class="gauge-note">{drift_sign}{_fmt_money(abs(ti['estimated_drift']))} est. drift</p>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="sub">Market snapshot</h2>
+    <div class="panel">{market_html}</div>
+  </section>
+
+  <section>
+    <h2 class="sub">Ranked deals</h2>
+    {deals_html}
+    <footer class="note">Green = priced below peers or already cut. Amber = 21+ days on lot, worth a call. Ranked by a blend of price-vs-peers, days on lot, and observed price cuts.</footer>
+  </section>
+
+  <footer class="note">Trade-in figures are a planning estimate (compounding monthly depreciation), not an appraisal.</footer>
+</div>
+"""
+
+
 def write_report() -> str:
     text = build_report()
     with open(config.REPORT_FILE, "w", encoding="utf-8") as f:
         f.write(text)
     with open(config.REPORT_HTML_FILE, "w", encoding="utf-8") as f:
         f.write(build_html_report())
+    with open(config.REPORT_ARTIFACT_FILE, "w", encoding="utf-8") as f:
+        f.write(build_artifact_html())
     return text
