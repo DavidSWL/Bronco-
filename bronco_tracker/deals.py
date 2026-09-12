@@ -62,6 +62,20 @@ def rank_deals(listings: dict[str, dict[str, Any]] | None = None) -> list[dict[s
     return scored
 
 
+def inactive_summaries(listings: dict[str, dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Sold/removed listings, newest-gone first, with days-on-market and
+    price-drop computed the same way as active ones.
+    """
+    listings = listings if listings is not None else storage.load_listings()
+    out = [
+        {**r, "days_on_market": storage.days_on_market(r), "price_drop": price_drop(r)}
+        for r in listings.values()
+        if r.get("status") != "active"
+    ]
+    out.sort(key=lambda r: r.get("last_seen", ""), reverse=True)
+    return out
+
+
 def trend_summary(listings: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     listings = listings if listings is not None else storage.load_listings()
     live = active(listings)

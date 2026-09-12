@@ -34,7 +34,7 @@
     margin: 0; background: var(--bg); color: var(--text);
     font-family: var(--font-body); line-height: 1.5;
   }
-  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 18px 56px; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 28px 18px 56px; }
   .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   .muted { color: var(--muted); }
   .small { font-size: 0.8rem; }
@@ -89,23 +89,74 @@
     border-bottom: 1px solid var(--border); font-size: 0.88rem;
   }
 
-  .deal-list { display: flex; flex-direction: column; gap: 10px; }
-  .deal-row {
-    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px;
-    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
-    border-radius: 12px; padding: 12px 16px;
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .section-head .sub { margin-bottom: 0; }
+  .count-pill {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+    background: var(--surface-2); border-radius: 999px; padding: 2px 10px;
   }
-  .deal-row.state-good { border-left-color: var(--good); }
-  .deal-row.state-watch { border-left-color: var(--watch); }
+
+  .controls { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 16px; }
+  .controls-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .search-input, .sort-select {
+    font-family: var(--font-body); font-size: 0.85rem; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 12px;
+  }
+  .search-input { flex: 1 1 180px; min-width: 0; }
+  .search-input:focus, .sort-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chipbtn {
+    font-family: var(--font-body); font-size: 0.78rem; font-weight: 500; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 12px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .chipbtn:hover { border-color: var(--accent); color: var(--text); }
+  .chipbtn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .link-btn {
+    font-family: var(--font-body); font-size: 0.78rem; font-weight: 500; color: var(--accent);
+    background: none; border: none; cursor: pointer; padding: 4px 0; text-decoration: underline;
+  }
+
+  .deal-list { display: flex; flex-direction: column; gap: 10px; }
+  details.deal-row {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border);
+    border-radius: 12px; padding: 0; transition: border-color 0.15s, transform 0.15s;
+  }
+  details.deal-row[open] { border-left-width: 4px; }
+  details.deal-row:hover { transform: translateY(-1px); }
+  details.deal-row.state-good { border-left-color: var(--good); }
+  details.deal-row.state-watch { border-left-color: var(--watch); }
+  .deal-row summary {
+    list-style: none; cursor: pointer; padding: 12px 16px;
+    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 4px 16px;
+  }
+  .deal-row summary::-webkit-details-marker { display: none; }
   .deal-title { font-weight: 600; }
   .deal-sub { font-size: 0.8rem; margin-top: 2px; }
   .deal-figures { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .deal-price { font-weight: 600; font-size: 1.05rem; }
   .deal-vs { color: var(--muted); }
   .delta.down { color: var(--good); font-family: var(--font-mono); font-size: 0.82rem; }
-  .deal-link { grid-column: 1 / -1; }
-  .deal-link a { color: var(--accent); text-decoration: none; font-size: 0.82rem; font-weight: 500; }
-  .deal-link a:hover { text-decoration: underline; }
+  .caret { color: var(--muted); transition: transform 0.15s; font-size: 0.9rem; }
+  details.deal-row[open] .caret { transform: rotate(90deg); }
+  .deal-detail { padding: 0 16px 16px; border-top: 1px solid var(--border); margin-top: 2px; }
+  .deal-detail .deal-link { margin-top: 10px; display: block; }
+  .deal-detail .deal-link a { color: var(--accent); font-size: 0.82rem; font-weight: 500; }
+  .history-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 10px; }
+  .history-table th, .history-table td { text-align: left; padding: 4px 8px 4px 0; color: var(--muted); }
+  .history-table td:last-child, .history-table th:last-child { text-align: right; color: var(--text); }
+  .sparkline { margin-top: 12px; display: block; }
+  .sparkline path.line { fill: none; stroke: var(--accent); stroke-width: 2; }
+  .sparkline path.area { fill: var(--accent-soft); stroke: none; }
+  .sparkline circle { fill: var(--accent); }
+  .sparkline text { font-family: var(--font-mono); font-size: 9px; fill: var(--muted); }
+
+  .sold-panel { margin-top: 10px; }
+  .sold-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .sold-item {
+    display: flex; justify-content: space-between; gap: 12px; font-size: 0.82rem;
+    padding: 8px 12px; background: var(--surface-2); border-radius: 10px;
+  }
 
   .chip {
     display: inline-block; font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
@@ -113,10 +164,14 @@
   }
   .chip-good { background: var(--good-soft); color: var(--good); }
   .chip-watch { background: var(--watch-soft); color: var(--watch); }
+  .chip-status { background: var(--surface-2); color: var(--muted); }
 
   footer.note { color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
   a { color: var(--accent); }
-  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  a:focus-visible, button:focus-visible, .search-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
 </style>
 <div class="wrap">
   <p class="eyebrow">92706 &middot; OC / LA / IE &middot; new 4-door hardtop</p>
@@ -126,18 +181,18 @@
   <div class="gauge-strip">
     <div class="gauge">
       <p class="eyebrow">Until target buy date</p>
-      <div class="gauge-value hero num">110</div>
+      <div class="gauge-value hero num" data-countup="110">110</div>
       <p class="gauge-note">days &middot; Dec 31, 2026</p>
     </div>
     <div class="gauge">
       <p class="eyebrow">Trade-in, paid off</p>
-      <div class="gauge-value num">$21,000</div>
+      <div class="gauge-value num" data-countup="21000" data-money="1">$21,000</div>
       <p class="gauge-note">today &middot; baseline $21,000</p>
     </div>
     <div class="gauge">
       <p class="eyebrow">Projected at target date</p>
-      <div class="gauge-value num">$20,099</div>
-      <p class="gauge-note">&minus;$901 est. drift</p>
+      <div class="gauge-value num" data-countup="20099" data-money="1">$20,099</div>
+      <p class="gauge-note">&minus; $901 est. drift</p>
     </div>
   </div>
 
@@ -155,29 +210,215 @@
           <span class="range-track"><span class="range-fill"></span></span>
           <span class="num">$44,169</span>
         </div>
-        <p class="muted small">0 sold/removed since tracking began.</p>
         <h3 class="sub">Average price by trim</h3>
         <div class="trim-list"><div class='trim-row'><span>Big Bend</span><span class='num'>$44,169</span></div></div>
         </div>
   </section>
 
   <section>
-    <h2 class="sub">Ranked deals</h2>
-    <div class='deal-list'>
-            <div class="deal-row state-neutral">
-              <div class="deal-main">
-                <div class="deal-title">Big Bend &middot; Marsh Gray </div>
-                <div class="deal-sub muted">Ken Grody Ford Orange County &mdash; 0 days on lot</div>
-              </div>
-              <div class="deal-figures">
-                <span class="deal-price num">$44,169</span>
-                <span class="deal-vs num small">0.0% vs peers</span>
-                <span class='muted'>&mdash;</span>
-              </div>
-              <div class="deal-link"><a href='https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/' target='_blank' rel='noopener'>listing &rarr;</a></div>
-            </div></div>
-    <footer class="note">Green = priced below peers or already cut. Amber = 21+ days on lot, worth a call. Ranked by a blend of price-vs-peers, days on lot, and observed price cuts.</footer>
+    <div class="section-head">
+      <h2 class="sub">Ranked deals</h2>
+      <span class="count-pill"><span id="dealCount">0</span> shown</span>
+    </div>
+
+    <div class="controls">
+      <div class="controls-row">
+        <input type="search" id="dealSearch" class="search-input" placeholder="Search dealer, trim, color&hellip;" aria-label="Search deals">
+        <select id="dealSort" class="sort-select" aria-label="Sort deals">
+          <option value="score">Best deal</option>
+          <option value="price_asc">Price: low to high</option>
+          <option value="price_desc">Price: high to low</option>
+          <option value="dom">Days on lot</option>
+          <option value="drop">Biggest price drop</option>
+        </select>
+      </div>
+      <div class="controls-row" id="trimChips"><button type="button" class="chipbtn" data-trim="Big Bend">Big Bend</button></div>
+    </div>
+
+    <div class="deal-list" id="dealList"></div>
+
+    <div class="sold-panel">
+      <button type="button" class="link-btn" id="soldToggle">Show sold/removed (0)</button>
+      <div class="sold-list" id="soldList" hidden></div>
+    </div>
+
+    <footer class="note">Green = priced below peers or already cut. Amber = 21+ days on lot, worth a call. Tap a listing to see its price history. Ranked by a blend of price-vs-peers, days on lot, and observed price cuts.</footer>
   </section>
 
   <footer class="note">Trade-in figures are a planning estimate (compounding monthly depreciation), not an appraisal.</footer>
 </div>
+
+<script type="application/json" id="dealData">[{"color_exterior":"Marsh Gray","dealer":"Ken Grody Ford Orange County","doors":4,"first_seen":"2026-09-12","id":"kengrody-fb261461","last_seen":"2026-09-12","location":"Buena Park, CA","price":44169,"price_history":[{"date":"2026-09-12","price":44169}],"status":"active","stock_number":"FB261461","trim":"Big Bend","url":"https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/","score":0.0,"pct_below_peer_avg":0.0,"peer_avg_price":44169,"days_on_market":0,"price_drop":0,"is_stale":false}]</script>
+<script type="application/json" id="soldData">[]</script>
+<script>
+(function () {
+  var deals = JSON.parse(document.getElementById('dealData').textContent);
+  var sold = JSON.parse(document.getElementById('soldData').textContent);
+  var state = { query: '', trims: new Set(), sort: 'score' };
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function money(n) {
+    if (n == null) return 'n/a';
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+
+  function countUp(el) {
+    var target = parseFloat(el.dataset.countup);
+    var isMoney = el.dataset.money === '1';
+    if (reduceMotion || !isFinite(target)) {
+      el.textContent = isMoney ? money(target) : Math.round(target);
+      return;
+    }
+    var start = null, dur = 700;
+    function tick(ts) {
+      if (start === null) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var val = target * eased;
+      el.textContent = isMoney ? money(val) : Math.round(val);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  document.querySelectorAll('[data-countup]').forEach(countUp);
+
+  function sparkline(history) {
+    if (!history || history.length < 2) return '';
+    var w = 260, h = 56, pad = 8;
+    var prices = history.map(function (p) { return p.price; });
+    var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
+    var span = (max - min) || 1;
+    var pts = history.map(function (p, i) {
+      var x = pad + (i / (history.length - 1)) * (w - pad * 2);
+      var y = h - pad - ((p.price - min) / span) * (h - pad * 2);
+      return [x, y];
+    });
+    var line = pts.map(function (p, i) { return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+    var area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + (h - pad) + ' L' + pts[0][0].toFixed(1) + ' ' + (h - pad) + ' Z';
+    var dots = pts.map(function (p, i) {
+      var isEnd = i === 0 || i === pts.length - 1;
+      return isEnd ? '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="2.5"></circle>' : '';
+    }).join('');
+    return '<svg class="sparkline" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="' + h + '" role="img" aria-label="Price history">' +
+      '<path class="area" d="' + area + '"></path>' +
+      '<path class="line" d="' + line + '"></path>' + dots +
+      '<text x="' + pts[0][0] + '" y="' + (h - 1) + '">' + esc(money(prices[0])) + '</text>' +
+      '<text x="' + pts[pts.length - 1][0] + '" y="' + (h - 1) + '" text-anchor="end">' + esc(money(prices[prices.length - 1])) + '</text>' +
+      '</svg>';
+  }
+
+  function historyTable(history) {
+    if (!history || !history.length) return '';
+    var rows = history.map(function (p) {
+      return '<tr><td>' + esc(p.date) + '</td><td>' + esc(money(p.price)) + '</td></tr>';
+    }).join('');
+    return '<table class="history-table"><thead><tr><th>Date</th><th>Price</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function dealState(d) {
+    if (d.is_stale) return 'watch';
+    if (d.pct_below_peer_avg >= 5 || d.price_drop > 0) return 'good';
+    return 'neutral';
+  }
+  function stateChip(state) {
+    if (state === 'good') return '<span class="chip chip-good">deal</span>';
+    if (state === 'watch') return '<span class="chip chip-watch">watch</span>';
+    return '';
+  }
+
+  function renderDeal(d) {
+    var s = dealState(d);
+    var drop = d.price_drop > 0
+      ? '<span class="delta down">&minus;' + esc(money(d.price_drop)) + '</span>'
+      : '<span class="muted small">&mdash;</span>';
+    var link = d.url ? '<div class="deal-link"><a href="' + esc(d.url) + '" target="_blank" rel="noopener">listing &rarr;</a></div>' : '';
+    return '<details class="deal-row state-' + s + '">' +
+      '<summary>' +
+        '<div>' +
+          '<div class="deal-title">' + esc(d.trim) + ' &middot; ' + esc(d.color_exterior) + ' ' + stateChip(s) + '</div>' +
+          '<div class="deal-sub muted">' + esc(d.dealer) + ' &mdash; ' + esc(d.days_on_market) + ' days on lot</div>' +
+        '</div>' +
+        '<div class="deal-figures">' +
+          '<span class="deal-price num">' + esc(money(d.price)) + '</span>' +
+          '<span class="deal-vs num small">' + esc(d.pct_below_peer_avg) + '% vs peers</span>' +
+          drop +
+        '</div>' +
+        '<span class="caret">&#9656;</span>' +
+      '</summary>' +
+      '<div class="deal-detail">' +
+        sparkline(d.price_history) +
+        historyTable(d.price_history) +
+        link +
+      '</div>' +
+    '</details>';
+  }
+
+  function applyFilters() {
+    var q = state.query.toLowerCase();
+    var rows = deals.filter(function (d) {
+      if (state.trims.size && !state.trims.has(d.trim)) return false;
+      if (q) {
+        var hay = [d.trim, d.color_exterior, d.dealer, d.location].join(' ').toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    var sorters = {
+      score: function (a, b) { return b.score - a.score; },
+      price_asc: function (a, b) { return (a.price || 0) - (b.price || 0); },
+      price_desc: function (a, b) { return (b.price || 0) - (a.price || 0); },
+      dom: function (a, b) { return b.days_on_market - a.days_on_market; },
+      drop: function (a, b) { return b.price_drop - a.price_drop; }
+    };
+    rows.sort(sorters[state.sort] || sorters.score);
+    return rows;
+  }
+
+  function render() {
+    var rows = applyFilters();
+    document.getElementById('dealCount').textContent = rows.length;
+    document.getElementById('dealList').innerHTML = rows.length
+      ? rows.map(renderDeal).join('')
+      : "<p class='muted'>No listings match these filters.</p>";
+  }
+
+  document.getElementById('dealSearch').addEventListener('input', function (e) {
+    state.query = e.target.value;
+    render();
+  });
+  document.getElementById('dealSort').addEventListener('change', function (e) {
+    state.sort = e.target.value;
+    render();
+  });
+  document.getElementById('trimChips').addEventListener('click', function (e) {
+    var btn = e.target.closest('.chipbtn');
+    if (!btn) return;
+    var trim = btn.dataset.trim;
+    if (state.trims.has(trim)) { state.trims.delete(trim); btn.classList.remove('active'); }
+    else { state.trims.add(trim); btn.classList.add('active'); }
+    render();
+  });
+
+  var soldToggle = document.getElementById('soldToggle');
+  var soldList = document.getElementById('soldList');
+  soldToggle.addEventListener('click', function () {
+    var showing = !soldList.hidden;
+    if (showing) { soldList.hidden = true; return; }
+    if (!soldList.dataset.rendered) {
+      soldList.innerHTML = sold.length ? sold.map(function (d) {
+        return '<div class="sold-item"><span>' + esc(d.trim) + ' &middot; ' + esc(d.color_exterior) + ' &mdash; ' + esc(d.dealer) +
+          '</span><span class="chip chip-status">' + esc(d.status) + ' &middot; ' + esc(d.days_on_market) + 'd</span></div>';
+      }).join('') : "<p class='muted small'>None yet.</p>";
+      soldList.dataset.rendered = '1';
+    }
+    soldList.hidden = false;
+  });
+
+  render();
+})();
+</script>
