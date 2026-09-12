@@ -1,4 +1,22 @@
 {
+  "aaronford-le-55544": {
+    "dealer": "Aaron Ford of Lake Elsinore",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "aaronford-le-55544",
+    "last_seen": "2026-09-12",
+    "location": "Lake Elsinore, CA",
+    "price": 50415,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 50415
+      }
+    ],
+    "status": "active",
+    "trim": "Big Bend",
+    "url": "https://www.capitalone.com/cars/vehicle-details/2026/Ford/Bronco/Big+Bend/1FMDE7BH9TLA55544"
+  },
   "citrusford-26t473": {
     "color_exterior": "Desert Sand",
     "dealer": "Citrus Motors Ford",
@@ -18,6 +36,24 @@
     "stock_number": "26T473",
     "trim": "Big Bend",
     "url": "https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/"
+  },
+  "hemborg-norco-85765": {
+    "dealer": "Hemborg Ford",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "hemborg-norco-85765",
+    "last_seen": "2026-09-12",
+    "location": "Norco, CA",
+    "price": 47765,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 47765
+      }
+    ],
+    "status": "active",
+    "trim": "Big Bend",
+    "url": "https://www.hemborgford.com/vehicle/1FMDE7BHXTLA85765/2026%20Ford%20Bronco%20Bronco%20Norco%20CA/"
   },
   "kengrody-fb261461": {
     "color_exterior": "Marsh Gray",
@@ -78,5 +114,25 @@
     "stock_number": "260791",
     "trim": "Outer Banks",
     "url": "https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/"
+  },
+  "tuttleclick-sa260153": {
+    "color_exterior": "Avalanche Gray",
+    "dealer": "Tuttle-Click Ford",
+    "doors": 4,
+    "first_seen": "2026-09-12",
+    "id": "tuttleclick-sa260153",
+    "last_seen": "2026-09-12",
+    "location": "Irvine, CA",
+    "price": 46159,
+    "price_history": [
+      {
+        "date": "2026-09-12",
+        "price": 46159
+      }
+    ],
+    "status": "active",
+    "stock_number": "SA260153",
+    "trim": "Big Bend",
+    "url": "https://www.tuttleclickford.com/inventory/new-2026-ford-bronco-big-bend-4wd-4-door-1fmde7bh1tla57045/"
   }
 }

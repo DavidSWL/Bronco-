@@ -120,30 +120,32 @@ def build_report() -> str:
             )
         lines.append("")
 
-    lines.append("## Ranked deals (best first)")
+    lines.append("## Listings, lowest price first")
     lines.append("")
     lines.append(
         f"Out-of-pocket assumes your trade-in is worth {_fmt_money(data['trade_in_value'])} at purchase "
         f"time and California's {config.SALES_TAX_RATE:.2%} sales tax (CA taxes the full price - the "
         f"trade-in doesn't reduce the taxable amount). Budget: {_fmt_money(config.OOP_CAP_STANDARD)} for "
-        f"Big Bend/Outer Banks, up to {_fmt_money(config.OOP_CAP_HIGHER_TRIM)} for a higher trim."
+        f"Big Bend/Outer Banks, up to {_fmt_money(config.OOP_CAP_HIGHER_TRIM)} for a higher trim. "
+        f"(Score column ranks by deal quality, not price - see the tips section for how to use it.)"
     )
     lines.append("")
     if not ranked:
         lines.append("_Nothing tracked yet. Add listings as you find them._")
     else:
+        by_price = sorted(ranked, key=lambda r: r.get("price") or 0)
         lines.append(
-            "| Score | Trim | Color | Price | Est. cash/finance | Budget | vs peer avg | Days on market | Price drop | Dealer | Link |"
+            "| Price | Trim | Color | Score | Est. cash/finance | Budget | vs peer avg | Days on market | Price drop | Dealer | Link |"
         )
         lines.append("|---|---|---|---|---|---|---|---|---|---|---|")
-        for r in ranked:
+        for r in by_price:
             stale_flag = " 🕓" if r["is_stale"] else ""
             drop_flag = f"-{_fmt_money(r['price_drop'])}" if r["price_drop"] > 0 else "—"
             b = r["budget"]
             budget_flag = "✅ in budget" if b["within_budget"] else f"⚠️ +{_fmt_money(b['over_by'])}"
             lines.append(
-                f"| {r['score']} | {r.get('trim', '?')} | {r.get('color_exterior', '?')} | "
-                f"{_fmt_money(r.get('price'))} | {_fmt_money(b['out_of_pocket'])} | {budget_flag} | "
+                f"| {_fmt_money(r.get('price'))} | {r.get('trim', '?')} | {r.get('color_exterior', '?')} | "
+                f"{r['score']} | {_fmt_money(b['out_of_pocket'])} | {budget_flag} | "
                 f"{r['pct_below_peer_avg']}% | "
                 f"{r['days_on_market']}{stale_flag} | {drop_flag} | "
                 f"{r.get('dealer', '?')} | [listing]({r.get('url', '')}) |"
@@ -208,7 +210,7 @@ def build_html_report() -> str:
         deals_html = "<p class='muted'>Nothing tracked yet. Add listings as you find them.</p>"
     else:
         rows = []
-        for r in ranked:
+        for r in sorted(ranked, key=lambda r: r.get("price") or 0):
             stale = " <span class='badge'>stale</span>" if r["is_stale"] else ""
             drop = f"-{_fmt_money(r['price_drop'])}" if r["price_drop"] > 0 else "&mdash;"
             url = _e(r.get("url", "")) if r.get("url") else ""
@@ -220,10 +222,10 @@ def build_html_report() -> str:
             )
             rows.append(f"""
               <tr>
-                <td class="score">{r['score']}</td>
+                <td>{_fmt_money(r.get('price'))}</td>
                 <td>{_e(r.get('trim'))}</td>
                 <td>{_e(r.get('color_exterior'))}</td>
-                <td>{_fmt_money(r.get('price'))}</td>
+                <td class="score">{r['score']}</td>
                 <td>{_fmt_money(b['out_of_pocket'])}</td>
                 <td>{budget_badge}</td>
                 <td>{r['pct_below_peer_avg']}%</td>
@@ -239,7 +241,7 @@ def build_html_report() -> str:
         <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Score</th><th>Trim</th><th>Color</th><th>Price</th><th>Est. cash/finance</th><th>Budget</th>
+            <th>Price</th><th>Trim</th><th>Color</th><th>Score</th><th>Est. cash/finance</th><th>Budget</th>
             <th>vs peer avg</th><th>Days on market</th><th>Price drop</th><th>Dealer</th><th></th>
           </tr></thead>
           <tbody>{''.join(rows)}</tbody>
@@ -358,7 +360,7 @@ def build_html_report() -> str:
   </div>
   {upgraded_html}
   <div class="card">
-    <h2>Ranked deals (best first)</h2>
+    <h2>Listings, lowest price first</h2>
     {deals_html}
     <footer>Score blends price-vs-peer-average, days on market, and observed price drops. "stale" = 21+ days on market, typically more negotiable.</footer>
   </div>
@@ -727,7 +729,7 @@ def build_artifact_html() -> str:
 
   <section>
     <div class="section-head">
-      <h2 class="sub">Ranked deals</h2>
+      <h2 class="sub">Listings</h2>
       <span class="count-pill"><span id="dealCount">0</span> shown</span>
     </div>
 
@@ -735,9 +737,9 @@ def build_artifact_html() -> str:
       <div class="controls-row">
         <input type="search" id="dealSearch" class="search-input" placeholder="Search dealer, trim, color&hellip;" aria-label="Search deals">
         <select id="dealSort" class="sort-select" aria-label="Sort deals">
+          <option value="price_asc" selected>Price: low to high</option>
           <option value="score">Best deal</option>
           <option value="oop_asc">Cash/finance: low to high</option>
-          <option value="price_asc">Price: low to high</option>
           <option value="price_desc">Price: high to low</option>
           <option value="dom">Days on lot</option>
           <option value="drop">Biggest price drop</option>
@@ -772,7 +774,7 @@ def build_artifact_html() -> str:
 (function () {
   var deals = JSON.parse(document.getElementById('dealData').textContent);
   var sold = JSON.parse(document.getElementById('soldData').textContent);
-  var state = { query: '', trims: new Set(), sort: 'score' };
+  var state = { query: '', trims: new Set(), sort: 'price_asc' };
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function esc(s) {

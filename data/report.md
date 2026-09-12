@@ -13,26 +13,29 @@ _Last updated: 2026-09-12_
 
 ## Market snapshot
 
-- Active listings tracked: 4
-- Price range: $42,837 - $49,351 (avg $45,838)
+- Active listings tracked: 7
+- Price range: $42,837 - $50,415 (avg $46,813)
 - Average days on market: 0
 - Stale listings (21+ days, good negotiating leverage): 0
 - Sold/removed since tracking began: 0
 
 **Price range by trim (active listings):**
-- Big Bend: $42,837 - $46,995 (avg $44,667, n=3)
+- Big Bend: $42,837 - $50,415 (avg $46,390, n=6)
 - Outer Banks: $49,351 - $49,351 (avg $49,351, n=1)
 
-## Ranked deals (best first)
+## Listings, lowest price first
 
-Out-of-pocket assumes your trade-in is worth $20,099 at purchase time and California's 7.75% sales tax (CA taxes the full price - the trade-in doesn't reduce the taxable amount). Budget: $29,000 for Big Bend/Outer Banks, up to $30,000 for a higher trim.
+Out-of-pocket assumes your trade-in is worth $20,099 at purchase time and California's 7.75% sales tax (CA taxes the full price - the trade-in doesn't reduce the taxable amount). Budget: $29,000 for Big Bend/Outer Banks, up to $30,000 for a higher trim. (Score column ranks by deal quality, not price - see the tips section for how to use it.)
 
-| Score | Trim | Color | Price | Est. cash/finance | Budget | vs peer avg | Days on market | Price drop | Dealer | Link |
+| Price | Trim | Color | Score | Est. cash/finance | Budget | vs peer avg | Days on market | Price drop | Dealer | Link |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 6.0 | Big Bend | Shadow Black | $42,837 | $26,843 | ✅ in budget | 6.0% | 0 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh8tla52232/) |
-| 1.7 | Big Bend | Marsh Gray | $44,169 | $28,278 | ✅ in budget | 1.7% | 0 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/) |
-| -8.0 | Big Bend | Desert Sand | $46,995 | $31,323 | ⚠️ +$2,323 | -8.0% | 0 | — | Citrus Motors Ford | [listing](https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/) |
-| -10.5 | Outer Banks | Avalanche Gray | $49,351 | $33,862 | ⚠️ +$4,862 | -10.5% | 0 | — | Norm Reeves Ford Superstore Cerritos | [listing](https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/) |
+| $42,837 | Big Bend | Shadow Black | 9.1 | $26,843 | ✅ in budget | 9.1% | 0 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh8tla52232/) |
+| $44,169 | Big Bend | Marsh Gray | 5.7 | $28,278 | ✅ in budget | 5.7% | 0 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/) |
+| $46,159 | Big Bend | Avalanche Gray | 0.6 | $30,422 | ⚠️ +$1,422 | 0.6% | 0 | — | Tuttle-Click Ford | [listing](https://www.tuttleclickford.com/inventory/new-2026-ford-bronco-big-bend-4wd-4-door-1fmde7bh1tla57045/) |
+| $46,995 | Big Bend | Desert Sand | -1.6 | $31,323 | ⚠️ +$2,323 | -1.6% | 0 | — | Citrus Motors Ford | [listing](https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/) |
+| $47,765 | Big Bend | ? | -3.6 | $32,153 | ⚠️ +$3,153 | -3.6% | 0 | — | Hemborg Ford | [listing](https://www.hemborgford.com/vehicle/1FMDE7BHXTLA85765/2026%20Ford%20Bronco%20Bronco%20Norco%20CA/) |
+| $49,351 | Outer Banks | Avalanche Gray | -6.4 | $33,862 | ⚠️ +$4,862 | -6.4% | 0 | — | Norm Reeves Ford Superstore Cerritos | [listing](https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/) |
+| $50,415 | Big Bend | ? | -10.6 | $35,008 | ⚠️ +$6,008 | -10.6% | 0 | — | Aaron Ford of Lake Elsinore | [listing](https://www.capitalone.com/cars/vehicle-details/2026/Ford/Bronco/Big+Bend/1FMDE7BH9TLA55544) |
 
 _Score blends price-vs-peer-average, days on market, and observed price drops. 🕓 = stale listing (21+ days), typically more negotiable._
 
