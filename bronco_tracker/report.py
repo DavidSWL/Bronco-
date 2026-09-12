@@ -658,11 +658,27 @@ def build_artifact_html() -> str:
   .tips-panel ul { margin: 14px 0 0; padding-left: 20px; font-size: 0.88rem; }
   .tips-panel li { margin-bottom: 8px; }
   .tips-panel li:last-child { margin-bottom: 0; }
-  .email-btn {
-    display: inline-block; margin-top: 10px; font-family: var(--font-body); font-weight: 500;
-    font-size: 0.82rem; color: #fff; background: var(--accent); border-radius: 8px;
-    padding: 7px 14px; text-decoration: none;
+  .email-block { margin-top: 12px; }
+  .email-block .field-label {
+    font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em;
+    font-size: 0.68rem; color: var(--muted); margin: 0 0 4px;
   }
+  .email-subject {
+    font-size: 0.82rem; font-weight: 500; background: var(--surface-2); border-radius: 8px;
+    padding: 8px 10px; margin-bottom: 8px; user-select: all;
+  }
+  .email-body {
+    width: 100%; min-height: 130px; font-family: var(--font-body); font-size: 0.8rem;
+    color: var(--text); background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; resize: vertical; line-height: 1.5;
+  }
+  .email-actions { display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+  .copy-btn {
+    font-family: var(--font-body); font-weight: 500; font-size: 0.82rem; color: #fff;
+    background: var(--accent); border: none; border-radius: 8px; padding: 7px 14px; cursor: pointer;
+  }
+  .copy-btn:active { opacity: 0.85; }
+  .copy-status { font-size: 0.78rem; color: var(--good); }
 
   footer.note { color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
   a { color: var(--accent); }
@@ -737,7 +753,7 @@ def build_artifact_html() -> str:
       <div class="sold-list" id="soldList" hidden></div>
     </div>
 
-    <footer class="note">Est. cash/finance assumes a __TRADE_IN_VALUE_FMT__ trade-in and CA's 9.25% sales tax (CA taxes the full price - trade-in doesn't reduce it). Green chip = priced below peers or already cut; amber = 21+ days on lot. Tap a listing for its price history and a ready-to-send dealer email.</footer>
+    <footer class="note">Est. cash/finance assumes a __TRADE_IN_VALUE_FMT__ trade-in and CA's __TAX_RATE_FMT__ sales tax (CA taxes the full price - trade-in doesn't reduce it). Green chip = priced below peers or already cut; amber = 21+ days on lot. Tap a listing for its price history and a copyable dealer email.</footer>
   </section>
 
   <section>
@@ -845,8 +861,17 @@ def build_artifact_html() -> str:
       ? '<span class="delta down">&minus;' + esc(money(d.price_drop)) + '</span>'
       : '<span class="muted small">&mdash;</span>';
     var link = d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">listing &rarr;</a>' : '';
-    var emailBtn = (d.email && d.email.mailto)
-      ? '<a class="email-btn" href="' + d.email.mailto + '">Email dealer for OTD price</a>'
+    var emailId = 'email-body-' + esc(d.id);
+    var emailBlock = (d.email && d.email.body)
+      ? '<div class="email-block">' +
+          '<p class="field-label">Email template &mdash; copy and paste into a new message</p>' +
+          '<div class="email-subject">' + esc(d.email.subject) + '</div>' +
+          '<textarea class="email-body" id="' + emailId + '" readonly>' + esc(d.email.body) + '</textarea>' +
+          '<div class="email-actions">' +
+            '<button type="button" class="copy-btn" data-copy-target="' + emailId + '">Copy email</button>' +
+            '<span class="copy-status" data-status-for="' + emailId + '" hidden>Copied</span>' +
+          '</div>' +
+        '</div>'
       : '';
     return '<details class="deal-row state-' + s + '">' +
       '<summary>' +
@@ -867,7 +892,7 @@ def build_artifact_html() -> str:
         sparkline(d.price_history) +
         historyTable(d.price_history) +
         '<div class="deal-link">' + link + '</div>' +
-        emailBtn +
+        emailBlock +
       '</div>' +
     '</details>';
   }
@@ -934,6 +959,31 @@ def build_artifact_html() -> str:
     soldList.hidden = false;
   });
 
+  document.getElementById('dealList').addEventListener('click', function (e) {
+    var btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    var textarea = document.getElementById(btn.dataset.copyTarget);
+    if (!textarea) return;
+    var status = document.querySelector('[data-status-for="' + btn.dataset.copyTarget + '"]');
+    function showCopied() {
+      if (!status) return;
+      status.hidden = false;
+      clearTimeout(status._hideTimer);
+      status._hideTimer = setTimeout(function () { status.hidden = true; }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(textarea.value).then(showCopied).catch(function () {
+        textarea.focus();
+        textarea.select();
+        try { document.execCommand('copy'); showCopied(); } catch (err) {}
+      });
+    } else {
+      textarea.focus();
+      textarea.select();
+      try { document.execCommand('copy'); showCopied(); } catch (err) {}
+    }
+  });
+
   render();
 })();
 </script>
@@ -960,6 +1010,7 @@ def build_artifact_html() -> str:
         "__OOP_CAP_STANDARD_FMT__": _fmt_money(config.OOP_CAP_STANDARD),
         "__OOP_CAP_HIGHER_FMT__": _fmt_money(config.OOP_CAP_HIGHER_TRIM),
         "__TRADE_IN_VALUE_FMT__": _fmt_money(data["trade_in_value"]),
+        "__TAX_RATE_FMT__": f"{config.SALES_TAX_RATE:.2%}",
         "__TIPS_HTML__": "".join(f"<li>{_e(tip)}</li>" for tip in budget.NEGOTIATION_TIPS),
     }
     for token, value in replacements.items():
