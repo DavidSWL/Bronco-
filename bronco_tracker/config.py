@@ -56,6 +56,7 @@ DATA_DIR = "data"
 LISTINGS_FILE = f"{DATA_DIR}/listings.json"
 TRADE_IN_FILE = f"{DATA_DIR}/trade_in.json"
 REPORT_FILE = f"{DATA_DIR}/report.md"
+REPORT_HTML_FILE = f"{DATA_DIR}/report.html"
 
 # Days a listing sits with no price change/removal before we flag it as
 # "stale" (i.e. actionable negotiating leverage).
