@@ -55,6 +55,26 @@
     "trim": "Big Bend",
     "url": "https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/"
   },
+  "citrusford-63652": {
+    "color_exterior": "Shadow Black",
+    "dealer": "Citrus Motors Ford",
+    "doors": 4,
+    "first_seen": "2026-09-15",
+    "id": "citrusford-63652",
+    "last_seen": "2026-09-15",
+    "location": "Ontario, CA",
+    "price": 55780,
+    "price_history": [
+      {
+        "date": "2026-09-15",
+        "price": 55780
+      }
+    ],
+    "status": "active",
+    "stock_number": "1FMEE8BP6TLA63652",
+    "trim": "Outer Banks",
+    "url": "https://www.citrusford.com/inventory/new-2026-ford-bronco-outer-banks-4x4-with-part-time-selectable-engagement-4-door-1fmee8bp6tla63652/"
+  },
   "hemborg-norco-85765": {
     "dealer": "Hemborg Ford",
     "doors": 4,
