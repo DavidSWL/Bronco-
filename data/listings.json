@@ -93,6 +93,26 @@
     "trim": "Big Bend",
     "url": "https://www.hemborgford.com/vehicle/1FMDE7BHXTLA85765/2026%20Ford%20Bronco%20Bronco%20Norco%20CA/"
   },
+  "kengrody-b262712": {
+    "color_exterior": "Shadow Black",
+    "dealer": "Ken Grody Ford Orange County",
+    "doors": 4,
+    "first_seen": "2026-09-17",
+    "id": "kengrody-b262712",
+    "last_seen": "2026-09-17",
+    "location": "Buena Park, CA",
+    "price": 45374,
+    "price_history": [
+      {
+        "date": "2026-09-17",
+        "price": 45374
+      }
+    ],
+    "status": "active",
+    "stock_number": "B262712",
+    "trim": "Big Bend",
+    "url": "https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4wd-4d-sport-utility-1fmde7bh7tlb01873/"
+  },
   "kengrody-fb261461": {
     "color_exterior": "Marsh Gray",
     "dealer": "Ken Grody Ford Orange County",
