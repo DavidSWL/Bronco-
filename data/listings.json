@@ -75,6 +75,26 @@
     "trim": "Outer Banks",
     "url": "https://www.citrusford.com/inventory/new-2026-ford-bronco-outer-banks-4x4-with-part-time-selectable-engagement-4-door-1fmee8bp6tla63652/"
   },
+  "hemborg-norco-28715": {
+    "color_exterior": "Marsh Gray",
+    "dealer": "Hemborg Ford",
+    "doors": 4,
+    "first_seen": "2026-09-19",
+    "id": "hemborg-norco-28715",
+    "last_seen": "2026-09-19",
+    "location": "Norco, CA",
+    "price": 46000,
+    "price_history": [
+      {
+        "date": "2026-09-19",
+        "price": 46000
+      }
+    ],
+    "status": "active",
+    "stock_number": "1FMDE7BH3TLB28715",
+    "trim": "Big Bend",
+    "url": "https://www.hemborgford.com/vehicle/1FMDE7BH3TLB28715/2026--Ford--Bronco--Convertible_Sport_Utility_SUV_-slash-_Crossover----Norco--CA/"
+  },
   "hemborg-norco-85765": {
     "dealer": "Hemborg Ford",
     "doors": 4,
