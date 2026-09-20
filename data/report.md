@@ -1,13 +1,13 @@
 # Bronco Deal Tracker
 
-_Last updated: 2026-09-19_
+_Last updated: 2026-09-20_
 
-**103 days** until target buy date (2026-12-31).
+**102 days** until target buy date (2026-12-31).
 
 ## Trade-in equity
 
 - Baseline value (2026-09-12, paid off): $21,000
-- Estimated value today: $20,941
+- Estimated value today: $20,933
 - Projected value at target date (2026-12-31): $20,099 (-$901)
 - _This is a planning estimate (compounding monthly depreciation), not an appraisal — get a real KBB/Carvana/CarMax quote close to purchase time._
 
@@ -15,7 +15,7 @@ _Last updated: 2026-09-19_
 
 - Active listings tracked: 11
 - Price range: $42,837 - $55,780 (avg $47,503)
-- Average days on market: 5.6
+- Average days on market: 6.6
 - Stale listings (21+ days, good negotiating leverage): 0
 - Sold/removed since tracking began: 0
 
@@ -29,17 +29,17 @@ Out-of-pocket assumes your trade-in is worth $20,099 at purchase time and Califo
 
 | Price | Trim | Color | Score | Est. cash/finance | Budget | vs peer avg | Days on market | Price drop | Dealer | Link |
 |---|---|---|---|---|---|---|---|---|---|---|
-| $42,837 | Big Bend | Shadow Black | 9.5 | $26,843 | ✅ in budget | 8.5% | 7 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh8tla52232/) |
-| $44,169 | Big Bend | Marsh Gray | 6.3 | $28,278 | ✅ in budget | 5.3% | 7 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/) |
-| $45,374 | Big Bend | Shadow Black | 2.7 | $29,576 | ⚠️ +$576 | 2.4% | 2 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4wd-4d-sport-utility-1fmde7bh7tlb01873/) |
-| $46,000 | Big Bend | Marsh Gray | 0.9 | $30,251 | ⚠️ +$1,251 | 0.9% | 0 | — | Hemborg Ford | [listing](https://www.hemborgford.com/vehicle/1FMDE7BH3TLB28715/2026--Ford--Bronco--Convertible_Sport_Utility_SUV_-slash-_Crossover----Norco--CA/) |
-| $46,159 | Big Bend | Avalanche Gray | 1.5 | $30,422 | ⚠️ +$1,422 | 0.5% | 7 | — | Tuttle-Click Ford | [listing](https://www.tuttleclickford.com/inventory/new-2026-ford-bronco-big-bend-4wd-4-door-1fmde7bh1tla57045/) |
-| $46,995 | Big Bend | Desert Sand | -0.5 | $31,323 | ⚠️ +$2,323 | -1.5% | 7 | — | Citrus Motors Ford | [listing](https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/) |
-| $47,685 | Big Bend | ? | -2.2 | $32,067 | ⚠️ +$3,067 | -3.2% | 7 | — | Unknown dealer (via CarGurus) | [listing]() |
-| $47,765 | Big Bend | ? | -2.4 | $32,153 | ⚠️ +$3,153 | -3.4% | 7 | — | Hemborg Ford | [listing](https://www.hemborgford.com/vehicle/1FMDE7BHXTLA85765/2026%20Ford%20Bronco%20Bronco%20Norco%20CA/) |
-| $49,351 | Outer Banks | Avalanche Gray | -3.3 | $33,862 | ⚠️ +$4,862 | -4.3% | 7 | — | Norm Reeves Ford Superstore Cerritos | [listing](https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/) |
-| $50,415 | Big Bend | ? | -8.9 | $35,008 | ⚠️ +$6,008 | -9.9% | 7 | — | Aaron Ford of Lake Elsinore | [listing](https://www.capitalone.com/cars/vehicle-details/2026/Ford/Bronco/Big+Bend/1FMDE7BH9TLA55544) |
-| $55,780 | Outer Banks | Shadow Black | -18.9 | $40,789 | ⚠️ +$11,789 | -19.5% | 4 | — | Citrus Motors Ford | [listing](https://www.citrusford.com/inventory/new-2026-ford-bronco-outer-banks-4x4-with-part-time-selectable-engagement-4-door-1fmee8bp6tla63652/) |
+| $42,837 | Big Bend | Shadow Black | 9.7 | $26,843 | ✅ in budget | 8.5% | 8 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh8tla52232/) |
+| $44,169 | Big Bend | Marsh Gray | 6.5 | $28,278 | ✅ in budget | 5.3% | 8 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-advanced-4x4-with-automatic-on-demand-engagement-4-door-1fmee7bh8tla61274/) |
+| $45,374 | Big Bend | Shadow Black | 2.9 | $29,576 | ⚠️ +$576 | 2.4% | 3 | — | Ken Grody Ford Orange County | [listing](https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4wd-4d-sport-utility-1fmde7bh7tlb01873/) |
+| $46,000 | Big Bend | Marsh Gray | 1.1 | $30,251 | ⚠️ +$1,251 | 0.9% | 1 | — | Hemborg Ford | [listing](https://www.hemborgford.com/vehicle/1FMDE7BH3TLB28715/2026--Ford--Bronco--Convertible_Sport_Utility_SUV_-slash-_Crossover----Norco--CA/) |
+| $46,159 | Big Bend | Avalanche Gray | 1.7 | $30,422 | ⚠️ +$1,422 | 0.5% | 8 | — | Tuttle-Click Ford | [listing](https://www.tuttleclickford.com/inventory/new-2026-ford-bronco-big-bend-4wd-4-door-1fmde7bh1tla57045/) |
+| $46,995 | Big Bend | Desert Sand | -0.4 | $31,323 | ⚠️ +$2,323 | -1.5% | 8 | — | Citrus Motors Ford | [listing](https://www.citrusford.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh5tlb10667/) |
+| $47,685 | Big Bend | ? | -2.0 | $32,067 | ⚠️ +$3,067 | -3.2% | 8 | — | Unknown dealer (via CarGurus) | [listing]() |
+| $47,765 | Big Bend | ? | -2.2 | $32,153 | ⚠️ +$3,153 | -3.4% | 8 | — | Hemborg Ford | [listing](https://www.hemborgford.com/vehicle/1FMDE7BHXTLA85765/2026%20Ford%20Bronco%20Bronco%20Norco%20CA/) |
+| $49,351 | Outer Banks | Avalanche Gray | -3.2 | $33,862 | ⚠️ +$4,862 | -4.3% | 8 | — | Norm Reeves Ford Superstore Cerritos | [listing](https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/) |
+| $50,415 | Big Bend | ? | -8.8 | $35,008 | ⚠️ +$6,008 | -9.9% | 8 | — | Aaron Ford of Lake Elsinore | [listing](https://www.capitalone.com/cars/vehicle-details/2026/Ford/Bronco/Big+Bend/1FMDE7BH9TLA55544) |
+| $55,780 | Outer Banks | Shadow Black | -18.8 | $40,789 | ⚠️ +$11,789 | -19.5% | 5 | — | Citrus Motors Ford | [listing](https://www.citrusford.com/inventory/new-2026-ford-bronco-outer-banks-4x4-with-part-time-selectable-engagement-4-door-1fmee8bp6tla63652/) |
 
 _Score blends price-vs-peer-average, days on market, and observed price drops. 🕓 = stale listing (21+ days), typically more negotiable._
 
