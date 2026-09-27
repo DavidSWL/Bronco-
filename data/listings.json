@@ -212,5 +212,24 @@
     "stock_number": "SA260153",
     "trim": "Big Bend",
     "url": "https://www.tuttleclickford.com/inventory/new-2026-ford-bronco-big-bend-4wd-4-door-1fmde7bh1tla57045/"
+  },
+  "tuttleclick-tlb12908": {
+    "dealer": "Tuttle-Click Ford",
+    "doors": 4,
+    "first_seen": "2026-09-27",
+    "id": "tuttleclick-tlb12908",
+    "last_seen": "2026-09-27",
+    "location": "Irvine, CA",
+    "price": 48915,
+    "price_history": [
+      {
+        "date": "2026-09-27",
+        "price": 48915
+      }
+    ],
+    "status": "active",
+    "stock_number": "TLB12908",
+    "trim": "Big Bend",
+    "url": "https://www.tuttleclick.com/new/Ford/2026-Ford-Bronco-50b8a057ac18494f4214ccecef565f64.htm"
   }
 }
