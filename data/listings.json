@@ -193,6 +193,26 @@
     "trim": "Outer Banks",
     "url": "https://www.normreevesford.com/inventory/new-2026-ford-bronco-outer-banks%C2%AE-4x4-with-part-time-selectable-engagement-4-door-1fmde8bh1tla93047/"
   },
+  "puentehills-250458": {
+    "color_exterior": "Desert Sand",
+    "dealer": "Puente Hills Ford",
+    "doors": 4,
+    "first_seen": "2026-09-28",
+    "id": "puentehills-250458",
+    "last_seen": "2026-09-28",
+    "location": "City of Industry, CA",
+    "price": 44600,
+    "price_history": [
+      {
+        "date": "2026-09-28",
+        "price": 44600
+      }
+    ],
+    "status": "active",
+    "stock_number": "250458",
+    "trim": "Big Bend",
+    "url": "https://www.puentehillsford.com/inventory/new-2025-ford-bronco-big-bend%C2%AE-4wd-4-door-1fmde7bh3sla83127/"
+  },
   "tuttleclick-sa260153": {
     "color_exterior": "Avalanche Gray",
     "dealer": "Tuttle-Click Ford",
