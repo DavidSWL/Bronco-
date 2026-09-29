@@ -173,6 +173,26 @@
     "trim": "Big Bend",
     "url": "https://www.kengrodyfordorangecounty.com/inventory/new-2026-ford-bronco-big-bend-4x4-with-part-time-selectable-engagement-4-door-1fmde7bh8tla52232/"
   },
+  "normreeves-260661": {
+    "color_exterior": "Beige",
+    "dealer": "Norm Reeves Ford Superstore Cerritos",
+    "doors": 4,
+    "first_seen": "2026-09-29",
+    "id": "normreeves-260661",
+    "last_seen": "2026-09-29",
+    "location": "Cerritos, CA",
+    "price": 62730,
+    "price_history": [
+      {
+        "date": "2026-09-29",
+        "price": 62730
+      }
+    ],
+    "status": "active",
+    "stock_number": "260661",
+    "trim": "Outer Banks",
+    "url": "https://www.normreeves.com/inventory/new-2026-ford-bronco-outer-banks-4wd-convertible-1fmee8bpxtla44876/"
+  },
   "normreeves-260791": {
     "color_exterior": "Avalanche Gray",
     "dealer": "Norm Reeves Ford Superstore Cerritos",
@@ -212,6 +232,25 @@
     "stock_number": "250458",
     "trim": "Big Bend",
     "url": "https://www.puentehillsford.com/inventory/new-2025-ford-bronco-big-bend%C2%AE-4wd-4-door-1fmde7bh3sla83127/"
+  },
+  "tuttleclick-f450698": {
+    "dealer": "Tuttle-Click Ford",
+    "doors": 4,
+    "first_seen": "2026-09-29",
+    "id": "tuttleclick-f450698",
+    "last_seen": "2026-09-29",
+    "location": "Irvine, CA",
+    "price": 45950,
+    "price_history": [
+      {
+        "date": "2026-09-29",
+        "price": 45950
+      }
+    ],
+    "status": "active",
+    "stock_number": "F450698",
+    "trim": "Big Bend",
+    "url": "https://www.tuttleclickford.com/inventory/new-2025-ford-bronco-big-bend%C2%AE-four-wheel-drive-4-door-1fmde7bh8sla99372/"
   },
   "tuttleclick-sa260153": {
     "color_exterior": "Avalanche Gray",
